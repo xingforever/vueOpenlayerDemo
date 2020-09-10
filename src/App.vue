@@ -1,32 +1,45 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
+
+    <!-- <Map>
+       </Map>
+<MapChange/>
+<MousePosition/> -->
+<MapTools/>
+
   </div>
 </template>
 
+<script>
+  import Map from '@/views/map/Map.vue' 
+  import test from '@/views/map/test'
+  import MapChange from '@/views/map/MapChange'
+  import MousePosition from '@/views/map/MousePosition'
+  import MapTools from '@/views/map/MapTools'
+
+  export default {
+    name: 'app',
+    components: {
+      Map,
+      MapChange,
+      MousePosition,
+      MapTools
+  }
+  }
+</script>
+
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+  * {
+    padding: 0;
+    margin: 0;
+  }
 
-#nav {
-  padding: 30px;
-}
+  html,
+  body {
+    height: 100%;
+  }
 
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
-}
+  #app {
+    height: 100%;
+  }
 </style>

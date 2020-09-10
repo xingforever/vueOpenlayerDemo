@@ -1,0 +1,62 @@
+<template>
+
+ <div id="mapType-wrapper" class="">
+     <div id="mapType">
+     <div  v-for="item in baseMapLayersInfo" >      
+         <div class="mapTypeCard panorama mapChange choosedType"
+         :data-name="item.layernames"
+         :style="{ 'background-image': 'url(' +bgurl+ item.picurl + ')','background-repeat':'no-repeat','background-size':'cover' }"
+          @click="changeMap(item.layernames)">
+            <span>{{item.name}}</span>
+         </div>
+     </div>
+     </div>
+</div>
+
+</template>
+ 
+<script>
+import mapconfig from '../../config/mapconfig' 
+
+export default {
+ name: 'MapChange',
+ data () {
+ return {
+ baseMapLayersInfo:mapconfig.baseMapLayersInfo,
+ bgurl:'../../asssets/img/mapIcons'
+ }
+ },
+ mounted(){
+     console.log(this.baseMapLayersInfo)
+
+ },
+ methods:{
+     changeMap: function(name){
+         alert("切换的结果："+name)
+     }
+ }
+}
+</script>
+ 
+<style >
+ 
+ #mapType-wrapper {
+     position: absolate;
+    bottom: 20px;
+    right: 5px;
+    z-index:3;
+    cursor: pointer;
+}
+
+#mapType{
+    height:60px;
+    width:80px;
+    cursor:pointer;
+    display: -webkit-box; /*这个必须要有*/
+     -webkit-box-flex:1;
+   
+}
+
+
+
+</style>

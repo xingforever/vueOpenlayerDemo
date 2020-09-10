@@ -1,0 +1,70 @@
+<template>
+    <div id="map" ref="rootmap">
+   
+    </div>
+</template>
+
+<script>
+import "ol/ol.css";
+import store from '../../store'
+import mousePosition from '../map/MousePositon';
+
+import { Map, View } from "ol";
+import mapconfig from '../../config/mapconfig.js'
+import baseLayers from'../../utils/baseLayers.js'
+import olControls from '../../utils/olControls.js'
+
+
+
+
+
+export default {
+  name:'Map',
+  data() {
+    return {
+      map: null
+    };
+    components:{
+      //mousePosition
+    }
+  },
+  mounted() { 
+    //初始化底图  
+    // this.$store.commit('initMap','map') 
+    // this.map=this.$store.state.olmap;
+      this.map=new Map({  
+        target:'map',     
+        layers: [         
+          baseLayers.tdtVec,
+          baseLayers.tdtCia
+        ],
+        view: new View({
+          projection: mapconfig.projection,    //使用这个坐标系
+          center: mapconfig.center,  
+          zoom: mapconfig.zoom,
+          minzoom:mapconfig.maxZoom,
+          maxZoom:mapconfig.maxZoom        
+        }),
+        controls:[
+          olControls.zoom,
+          olControls.mousePositionControl,
+          olControls.scaleLine,
+          olControls.rotate,
+          olControls.fullScreen,
+         
+        ]
+
+      })
+      olControls.mousePositionControl.setMap(state.olmap)
+     
+    
+  }
+};
+</script>
+
+<style>
+#map{height:100%;}
+/*隐藏ol的一些自带元素*/
+.ol-attribution{ display: none;}
+
+</style>
