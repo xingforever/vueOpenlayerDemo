@@ -18,7 +18,7 @@
   import MapChange from '@/views/map/MapChange'
   import MousePosition from '@/views/map/MousePosition'
   import MapTool from '@/views/map/MapTool'
-
+// 测试
   export default {
     name: 'app',
     components: {
