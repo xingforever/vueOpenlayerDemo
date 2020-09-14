@@ -1,11 +1,13 @@
 <template>
   <div id="app">
 
-    <!-- <Map>
+    <Map>
+ 
        </Map>
+            <MapTool/>
 <MapChange/>
-<MousePosition/> -->
-<MapTools/>
+<MousePosition/>
+
 
   </div>
 </template>
@@ -15,7 +17,7 @@
   import test from '@/views/map/test'
   import MapChange from '@/views/map/MapChange'
   import MousePosition from '@/views/map/MousePosition'
-  import MapTools from '@/views/map/MapTools'
+  import MapTool from '@/views/map/MapTool'
 
   export default {
     name: 'app',
@@ -23,7 +25,7 @@
       Map,
       MapChange,
       MousePosition,
-      MapTools
+      MapTool
   }
   }
 </script>

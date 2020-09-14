@@ -26,6 +26,10 @@
       //初始化地图
       mapHelper.initMap()
       this.map = mapHelper.map
+      //初始化 tem图层
+      console.log(this.map)
+      mapHelper.initTemLayers()
+      //设置默认显示图层
       mapHelper.changeBaseMapVisible(["tdtVec","tdtCva"])
 
     }
@@ -35,6 +39,7 @@
 <style>
   #map {
     height: 100%;
+    width: 100%;
   }
 
   /*隐藏ol的一些自带元素*/
