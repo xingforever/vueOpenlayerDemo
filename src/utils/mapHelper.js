@@ -125,9 +125,9 @@ measureStyle:new Style({
         maxZoom: mapconfig.maxZoom
       }),  
       controls:[
-        // olControls.zoom,
-        // olControls.mousePositionControl,
-        // olControls.scaleLine
+        olControls.zoom,
+        olControls.mousePositionControl,
+         olControls.scaleLine
 
       ]    
 
@@ -160,12 +160,7 @@ measureStyle:new Style({
     mapHelper.tempLayers.init()
 
 
-  },
-  initControls(){
-   mapHelper.map.addControl(olControls.zoom),
-   mapHelper.map.addControl(olControls.mousePositionControl),
-   mapHelper.map.addControl(olControls.scaleLine)
-  },
+  },  
   //通过名字移除图层
   removeLayerByName(name) {
     let layer = mapHelper.getLayerByName(name)
@@ -175,6 +170,13 @@ measureStyle:new Style({
     layer.forEach(item => {
       mapHelper.map.removeLayer(item)
     })
+  },
+  // 清除所有覆盖图层
+  removeAllOverlay() {
+    let layers = mapHelper.map.getOverlays().getArray();
+    layers.forEach(item => {
+      mapHelper.map.removeOverlay(item);
+    });
   },
   // 根据图层名获取图层
   getLayerByName(name) {
@@ -332,12 +334,7 @@ measureStyle:new Style({
      
       mapHelper.map.removeInteraction(mapHelper.plottingOption.draw);
     });
-  },
-  //清除工具栏创建的要素和图层
-  clearLayers() {
-    mapHelper.tempLayers.clear();
-    mapHelper.removeLayerByName("标绘");
-  },
+  },  
   // 添加测量标注
   createMeasureTooltip() {
     if (mapHelper.measureOption.measureTooltipElement) {
@@ -524,8 +521,11 @@ addInteractionFun(measureType) {
 // 清除空间测量
 clearToolDraw(){
   mapHelper.tempLayers.clear();
-  mapHelper.removeLayerByName('标绘')
-  mapHelper.removeLayerByName('空间测量')
+    mapHelper.removeLayerByName('标绘')
+    mapHelper.removeLayerByName('空间测量')
+    mapHelper.map.un("pointermove", mapHelper.pointerMoveHandler);
+    mapHelper.map.removeInteraction(mapHelper.plottingOption.draw);
+    mapHelper.removeAllOverlay()
 }
 }
 export default mapHelper

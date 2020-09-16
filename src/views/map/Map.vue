@@ -30,7 +30,7 @@
       this.map = mapHelper.map     
       //设置默认显示图层
       mapHelper.changeBaseMapVisible(["tdtVec","tdtCva"])
-       mapHelper.initControls();
+      
     }
   };
 </script>
