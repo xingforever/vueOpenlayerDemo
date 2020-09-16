@@ -1,4 +1,4 @@
-import mapconfig from '../config/mapconfig.js'
+import mapconfig from '@/config/mapconfig.js'
 import XYZ from 'ol/source/XYZ'
 import TileLayer from 'ol/layer/Tile'
 

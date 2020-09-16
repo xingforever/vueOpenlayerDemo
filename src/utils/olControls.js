@@ -23,16 +23,32 @@ const mousePositionControl = new MousePosition({
     },
    
 });
+//  zoomControl  放大缩小控件
+const zoomControl=new Zoom({
+className: "custom-zoom",
+target: document.getElementById("zoomControl")
 
+})
+//className:'custom-scaleLine',
+const  scaleLineControl=new ScaleLine({
+ 
+target: document.getElementById("scaleLineControl"),
+minWidth:64,
+bar:false,
+steps:4,
+text:false,
+units:'metric'
+
+})
 const olControls={
     //全屏控件
     fullScreen:new FullScreen(),
     //比例尺控件
-    scaleLine:new ScaleLine(),
+    scaleLine:scaleLineControl,
     //旋转
     rotate:new Rotate(),
     //放大缩小
-    zoom:new Zoom(),
+    zoom:zoomControl,
     //鼠标位置
     mousePositionControl:mousePositionControl
 

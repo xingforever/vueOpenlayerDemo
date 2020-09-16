@@ -1,8 +1,14 @@
 <template>
 
-    <div id="map" ref="rootmap">
 
-    </div>
+  <div id="map" ref="rootmap">
+
+ 
+  </div>
+
+ 
+    
+
 
 
 
@@ -25,13 +31,10 @@
     mounted() {
       //初始化地图
       mapHelper.initMap()
-      this.map = mapHelper.map
-      //初始化 tem图层
-      console.log(this.map)
-      mapHelper.initTemLayers()
+      this.map = mapHelper.map     
       //设置默认显示图层
       mapHelper.changeBaseMapVisible(["tdtVec","tdtCva"])
-
+       mapHelper.initControls();
     }
   };
 </script>
@@ -46,4 +49,9 @@
   .ol-attribution {
     display: none;
   }
+  .ol-tooltip-measure,
+  .ol-tooltip-static {
+	color: red;
+}
+
 </style>

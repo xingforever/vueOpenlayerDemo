@@ -4,9 +4,10 @@
     <Map>
  
        </Map>
+    
             <MapTool/>
 <MapChange/>
-<MousePosition/>
+  <MapControls/>
 
 
   </div>
@@ -16,7 +17,7 @@
   import Map from '@/views/map/Map.vue' 
   import test from '@/views/map/test'
   import MapChange from '@/views/map/MapChange'
-  import MousePosition from '@/views/map/MousePosition'
+  import MapControls from '@/views/map/MapControls'
   import MapTool from '@/views/map/MapTool'
 // 测试
   export default {
@@ -24,7 +25,7 @@
     components: {
       Map,
       MapChange,
-      MousePosition,
+      MapControls,
       MapTool
   }
   }

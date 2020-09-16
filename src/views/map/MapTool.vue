@@ -1,117 +1,177 @@
 <template>
 
-<div class="mapTools">
-  <el-button  type="info" icon="el-icon-picture"  class="toolButton" plain>规划专题图</el-button>  
-  <el-button type="info" icon="el-icon-folder-add" class="toolButton"  plain>加载</el-button>  
-   <el-button type="info" icon="el-icon-search" class="toolButton"    plain>查询</el-button>  
-   <el-button type="info" icon="el-icon-map-location" class="toolButton" @click="location"  plain>定位</el-button>  
-    <el-button  type="info" icon="el-icon-delete" class="toolButton" plain>清除</el-button>  
-     <el-select  class="toolSelect" v-model="value" placeholder="工具">
-    <el-option
-      v-for="item in options"
-      :key="item.value"
-      :label="item.label"
-      :value="item.value">
-    </el-option>
-  </el-select>
- </div>
+  <div class="mapTools">
+    <el-button type="info" icon="el-icon-picture" class="toolButton" plain>规划专题图</el-button>
+    <el-button type="info" icon="el-icon-folder-add" class="toolButton" plain>加载</el-button>
+    <el-button type="info" icon="el-icon-search" class="toolButton" plain>查询</el-button>
+    <el-button type="info" icon="el-icon-map-location" class="toolButton" @click="location" plain>定位</el-button>  
+    <el-button type="info" icon="el-icon-delete" class="toolButton" @click="clearAll" plain>清除</el-button>
+    <el-select class="toolSelect" ref="EL_toolSelect" v-model="value" @change="changeTools" :popper-append-to-body="false"   placeholder="工具" >
+      <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
+      </el-option>
+    </el-select>
+  </div>
 </template>
- 
+
 <script>
-import mapHelper from '../../utils/mapHelper';
-export default {
- name: 'MapTool',
- data() {
+  import mapHelper from '../../utils/mapHelper';
+  export default {
+    name: 'MapTool',
+    data() {
       return {
-        options: [{
-          value: '测面积',
-          label: '测面积'
-        }, {
-          value: '测距离',
+        options: [
+          {
+          value: 'MeasurePoint',
+          label: '测点'
+        },{
+          value: 'MeasureLineString',
           label: '测距离'
         }, {
-          value: '绘制点',
+          value: 'MeasurePolygon',
+          label: '测面积'
+        }, {
+          value: 'DrawPoint',
           label: '绘制点'
         }, {
-          value: '绘制线',
+          value: 'DrawLineString',
           label: '绘制线'
         }, {
-          value: '绘制线',
+          value: 'DrawBox',
+          label: '绘制矩形'
+        }, {
+          value: 'DrawPolygon',
           label: '绘制面'
         }],
         value: '工具'
       }
-    },  
-  methods: {
-     location() {
-        this.$prompt('请输入经纬度', '定位(lat,lon)', {
+    },
+    methods: {
+      location() {
+        this.$prompt('请输入经纬度', '定位(lon,lat)', {
           confirmButtonText: '定位',
-          cancelButtonText: '取消',          
-        }).then(({ value }) => {
-         //中文逗号分隔
+          cancelButtonText: '取消',
+        }).then(({
+          value
+        }) => {
+          //中文逗号分隔
           let arr = value.split('，');
-          if(arr.length==1){
+          if (arr.length == 1) {
             //英文逗号分隔
-             arr=value.split(',');
+            arr = value.split(',');
           }
           //输入数据 逗号分隔后不是2 个
-          if(arr.length!=2){
+          if (arr.length != 2) {
             this.$message({
-            type: 'info',
-            message: '请输入经纬度，并用逗号分隔'
-          }); 
-          return;
-          }          
-          const msg= mapHelper.setLocation(arr)
-          if (msg!='ok'){
-             this.$message({
-            type: 'info',
-            message: msg
-          }); 
+              type: 'info',
+              message: '请输入经纬度，并用逗号分隔'
+            });
+            return;
+          }
+          const msg = mapHelper.setLocation(arr)
+          if (msg != 'ok') {
+            this.$message({
+              type: 'info',
+              message: msg
+            });
           }
         })
+      },
+      changeTools(val) {
+        switch (val) {
+          case 'MeasurePoint':
+            mapHelper.spaceMeasure('Point')
+            break;
+          case 'MeasureLineString':
+            mapHelper.spaceMeasure('LineString')
+            break;
+          case 'MeasurePolygon':
+            mapHelper.spaceMeasure('Polygon')
+            break;
+          case 'DrawLineString':
+            mapHelper.addPoltInteraction('LineString')
+            break;
+          case 'DrawPoint':
+            mapHelper.addPoltInteraction('Point')
+            break;
+          case 'DrawBox':
+            mapHelper.addPoltInteraction('Box')
+            break;
+          case 'DrawPolygon':
+            mapHelper.addPoltInteraction('Polygon')
+          default:
+            break
+        }
+        //重置为不选择
+        this.value="工具";
+       
+      },      
+      clearAll() {
+      mapHelper.clearToolDraw()
       }
-    
-   
-  
-}
-}
-
+    }
+  }
 </script>
+
+<style lang="less" scoped>
+
+  .mapTools {
+    position: absolute;
+    top: 40px;
+    right: 30px;
+    z-index: 3;
+    cursor: pointer;   
+    background-color: white;
+    border-radius: 6px;
+
+  }
+
+  .toolButton {   
+    margin-left: 1px !important;
+    margin-right: 1.6px !important;    
+    padding-top: 4px !important;;
+    padding-left: 8px !important;;
+    padding-right: 8px !important;;
+    padding-bottom: 10px !important;;
+    border-radius: 4px !important;
+    font-size: 12px !important;
+    border:none;
+    color:#2b2c2d !important;
+  }
  
-<style >
- .mapTools{
-  position: absolute;
-   top: 40px;
-   right: 20px;
-   z-index: 3;
-   cursor: pointer;    
-   border:0.5px solid rgb(162, 164, 168);
-   background-color:rgb(203, 217, 243);
-   border-radius:6px ;
-     
- }
- .toolButton{
-       margin-top:1px  !important;;
-       margin-left:1px  !important;
-       margin-right:1px  !important;
-       padding: 8px 8px  !important;
-       border-radius:6px  !important;
-       font-size: 10px  !important ;
-      
- }
+
+  .toolSelect {
+    font-size: 12px !important;
+    padding: 2px 2px !important;
+    width: 70px !important;
+    height: 24px !important;
+   font-size: 10px !important;
+  }
+  .el-input{
+    font-size: 12px !important;
+    padding: 2px 2px !important;
+    width: 65px !important;
+    height: 24px !important;
+    font-size: 10px !important;
+  }
+
+/deep/ .el-input__inner {
+   border: 0px solid #ffffff !important;   
+    color:#2b2c2d !important;  
+    font-size: 12px !important;   
+    line-height: 24px !important;   
+    padding: 0 0px !important;   
+    width: 30px !important;
+   
+}
+  
+  .el-button--info {    
+     background-color: white !important; 
+     border-color:white !important; 
+}
  
- .toolSelect{
-    font-size: 10px !important;  
-    padding: 2px 2px  !important;
- 
- }
-.toolSelect .el-input__inner{
-    padding: 0px 1px  !important;
-    height: 28px!important;
-    border-radius:6px  !important;
-    width: 60px !important;
-    font-size: 10px  !important ;
-     background-color: #f4f4f5 !important;
- }
+.el-select-dropdown__item{
+  font-size: 10px !important;   
+  padding: 0 10px;
+}
+  
 </style>
