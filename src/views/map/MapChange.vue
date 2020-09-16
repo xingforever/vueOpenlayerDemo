@@ -16,16 +16,14 @@ import mapHelper from '../../utils/mapHelper.js'
     export default {
         name: 'MapChange',
         data() {
-            return {
-              olmap:this.$store.olmap,
+            return {              
               active: false,
               selectnum:0
             }
         },
         mounted() {
            this.selectnum=0
-           const arr=["tdtImg,tdtCia"]
-         //  mapHelper.changeBaseMapVisible(arr)
+           const arr=["tdtImg,tdtCia"]        
          
         },
         methods: {

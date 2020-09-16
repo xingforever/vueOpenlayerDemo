@@ -4,7 +4,6 @@ import MousePosition from "ol/control/MousePosition";
 import ScaleLine from 'ol/control/ScaleLine';
 import Zoom from 'ol/control/Zoom';
 import {createStringXY} from 'ol/coordinate';
-
 //  MousePosition 鼠标位置控件
 const mousePositionControl = new MousePosition({
     //坐标格式
@@ -27,11 +26,9 @@ const mousePositionControl = new MousePosition({
 const zoomControl=new Zoom({
 className: "custom-zoom",
 target: document.getElementById("zoomControl")
-
 })
 //className:'custom-scaleLine',
-const  scaleLineControl=new ScaleLine({
- 
+const  scaleLineControl=new ScaleLine({ 
 target: document.getElementById("scaleLineControl"),
 minWidth:64,
 bar:false,
