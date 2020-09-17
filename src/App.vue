@@ -1,33 +1,28 @@
 <template>
   <div id="app">
 
-    <Map>
- 
-       </Map>
-    
-            <MapTool/>
-<MapChange/>
-  <MapControls/>
-
-
+    <olmap>   
+    <mapControls />
+    </olmap>
+    <mapChange />
+    <mapTools />
   </div>
 </template>
 
 <script>
-  import Map from '@/views/map/Map.vue' 
-  import test from '@/views/map/test'
-  import MapChange from '@/views/map/MapChange'
-  import MapControls from '@/views/map/MapControls'
-  import MapTool from '@/views/map/MapTool'
-// 测试
+  import mapTools from '@/views/map/map-tools'
+  import mapChange from '@/views/map/map-change'
+  import mapControls from '@/views/map/map-controls'
+  import olmap from '@/views/map/olmap'
+  // 测试
   export default {
     name: 'app',
     components: {
-      Map,
-      MapChange,
-      MapControls,
-      MapTool
-  }
+      olmap,
+      mapControls,
+      mapChange,
+      mapTools
+    }
   }
 </script>
 

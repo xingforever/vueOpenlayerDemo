@@ -6,7 +6,7 @@
  
 <script>
 export default {
- name: 'MapScaleLine',
+ name: 'map-scaleline',
 
 }
 </script>
@@ -16,7 +16,7 @@ export default {
     position:absolute;    
     background: rgba(0,60,136,0.3);
     border-radius: 4px;
-    bottom: 20px;
+    bottom: 10px;
     left: 8px;
     padding: 2px;
     position: absolute;

@@ -12,10 +12,10 @@
 
 <script>
   import "ol/ol.css"
-  import mapHelper from '../../utils/mapHelper.js'
+  import{ toolsHelper, mapHelper}  from '../../utils/mapHelper.js'
 
   export default {
-    name: 'Map',
+    name: 'olmap',
     data() {
       return {
         map: null

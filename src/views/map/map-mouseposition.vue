@@ -6,17 +6,19 @@
 
 <script>
   export default {
-    name: 'MousePositon', 
+    name: 'map-mousepositon', 
 
   }
 </script>
 
 <style>
   .custom-mouse-position {
+    position: absolute;
     color: red;
     font-size: 15;  
-    bottom: 0;
+    bottom: 1px;
     padding-left:10px;
-    position: absolute;
+    width: 60%;
+  
   }
 </style>

@@ -1,110 +1,137 @@
-import {
-  Map,
-  View
-} from "ol";
+import {  Map,  View} from "ol";
 import mapconfig from '../config/mapconfig.js'
-import baseLayers from '../utils/baseLayers.js'
-import olControls from '../utils/olControls.js'
-import {
-  fromLonLat,
-  transform
-} from "ol/proj";
-import {
-  Fill,
-  Stroke,
-  Circle,
-  Style
-} from 'ol/style';
-import Icon from 'ol/style/Icon';
+import {Zoom,MousePosition ,ScaleLine,FullScreen,Rotate}from 'ol/control';
+import {createStringXY} from 'ol/coordinate';
+import {  Fill,  Stroke,  Circle,  Style,Icon} from 'ol/style';
 import VectorLayer from 'ol/layer/Vector';
 import Feature from 'ol/Feature';
-import { Point,LineString, Polygon } from "ol/geom";
+import {  Point,  LineString,  Polygon} from "ol/geom";
 import VectorSource from 'ol/source/Vector';
-import {
-  Draw,
-  Modify,
-  Snap,
-  defaults
-} from "ol/interaction";
-import {
-  createBox
-} from "ol/interaction/Draw";
+import {  Draw,  Modify, Snap,  defaults} from "ol/interaction";
+import {  createBox} from "ol/interaction/Draw";
 import OlOverlay from "ol/Overlay";
-import { getArea, getLength } from "ol/sphere.js";
-import ImageLayer from "ol/layer/Image";
-import Text from "ol/style/Text";
+import {  getArea,  getLength} from "ol/sphere.js";
+import XYZ from 'ol/source/XYZ'
+import TileLayer from 'ol/layer/Tile'
 
-let mapHelper = {
-  map: null,
-  allLayers: [],
-  tempLayers: {}, //临时图层
-  isDraw: false,
-  // 标绘设置
-  plottingOption: {
-    textVector: null,
-    layer: null,
-    sketch: null,
-    draw: null,
-    listener: null
-  },
-  //绘图样式-标绘
-  drawStyle: new Style({
-    fill: new Fill({
-      color: "rgba(255,255,255,.5)"
-    }),
-    stroke: new Stroke({
-      color: "yellow",
-      lineDash: [10, 10],
-      width: 2
-    }),
-    image: new Circle({
-      radius: 5,
-      stroke: new Stroke({
-        color: "yellow"
-      }),
-      fill: new Fill({
-        color: "red"
+const mapSrc = mapconfig.mapSrc
+//--------------------------底图 --------------------------------
+ const baseLayers = {
+
+  /*天地图矢量*/
+  tdtVec: new TileLayer({
+      id: 'base_tdtVec',
+      name: 'tdtVec',
+      zIndex: -1000000000,
+      visible: true,
+      source: new XYZ({
+          crossOrigin: 'anonymous', //允许跨域
+          url: mapSrc.tdtVec
       })
-    })
   }),
-  //空间测量设置
-  measureOption: {
-    layer: null,
-    sketch: null,
-    helpTooltipElement: null,
-    helpTooltip: null,
-    measureTooltipElement: null,
-    measureTooltip: null,
-    continuePolygonMsg: "",
-    continueLineMsg: "",
-    helpMsg: "",
-    draw: null,
-    listener: null,
-    popupcloser: null
-  },
-  //测量 样式
-measureStyle:new Style({
-  fill: new Fill({
-    color: "rgba(255,255,255,.5)"
+  /*天地图影像*/
+  tdtImg: new TileLayer({
+      id: 'base_tdtImg',
+      name: 'tdtImg',
+      zIndex: -1000000000,
+      visible: false,
+      source: new XYZ({
+          crossOrigin: 'anonymous',
+          url: mapSrc.tdtImg
+      })
   }),
-  stroke: new Stroke({
-    color: "blue",
-    lineDash: [10, 10],
-    width: 2
-  }),
-  image: new Circle({
-    radius: 5,
-    stroke: new Stroke({
-      color: "yellow"
-    }),
-    fill: new Fill({
-      color: "red"
-    })
-  })
-}),
 
+  /*天地图地形*/
+  tdtTer: new TileLayer({
+      id: 'base_tdtTer',
+      zIndex: -1000000000,
+      name: 'tdtTer',
+      visible: false,
+      source: new XYZ({
+          crossOrigin: 'anonymous',
+          url: mapSrc.tdtTer
+      })
+  }),
+  /*天地图矢量标注*/
+  tdtCva: new TileLayer({
+      id: 'base_tdtCva',
+      zIndex: -999999999,
+      name: 'tdtCva',
+      visible: true,
+      source: new XYZ({
+          crossOrigin: 'anonymous',
+          url: mapSrc.tdtCva
+      })
+  }),
+  /*天地图影像标注*/
+  tdtCia: new TileLayer({
+      id: 'base_tdtCia',
+      zIndex: -999999999,
+      name: 'tdtCia',
+      visible: false,
+      source: new XYZ({
+          crossOrigin: 'anonymous',
+          url: mapSrc.tdtCia
+      })
+  }),
+  /*天地图地形标注*/
+  tdtCta: new TileLayer({
+      id: 'base_tdtCta',
+      zIndex: -999999999,
+      name: 'tdtCta',
+      visible: false,
+      source: new XYZ({
+          crossOrigin: 'anonymous',
+          url: mapSrc.tdtCta
+      })
+  }),
+}
+//--------------------------地图控件 --------------------------------
+const olControls={
+  //全屏控件
+  fullScreen:new FullScreen(),
+  //比例尺控件
+  scaleLine:new ScaleLine({ 
+    target: document.getElementById("scaleLineControl"),
+    minWidth:64,
+    bar:false,
+    steps:4,
+    text:false,
+    units:'metric'
+    
+    }),
+  //旋转
+  rotate:new Rotate(),
+  //放大缩小
+  zoom:new Zoom({
+     className: "custom-zoom",
+     target: document.getElementById("zoomControl")
+    }),
+  //鼠标位置
+  mousePositionControl:new MousePosition({
+    //坐标格式
+    coordinateFormat: createStringXY(5),
+    //地图投影坐标系（若未设置则输出为默认投影坐标系下的坐标）
+    projection: "EPSG:4326",
+    //坐标信息显示样式类名，默认是'ol-mouse-position'
+    className: "custom-mouse-position",
+    //显示鼠标位置信息的目标容器
+    target: document.getElementById("mouse-position"),
+    //未定义坐标的标记
+    undefinedHTML: "&nbsp;",
+    //显示 经纬度
+    coordinateFormat: function (e) {
+        return "经度：" + e[0].toFixed(3) + "° , 纬度：" + e[1].toFixed(3) + "°";
+    },
+   
+  })
+
+}
+//--------------------------地图 Helper --------------------------------
+export let mapHelper = {
+  map: null,
   //初始化地图对象
-  initMap () {
+  initMap() {
     //地图对象   
     mapHelper.map = new Map({
       target: 'map',
@@ -123,44 +150,19 @@ measureStyle:new Style({
         zoom: mapconfig.zoom,
         minzoom: mapconfig.maxZoom,
         maxZoom: mapconfig.maxZoom
-      }),  
-      controls:[
+      }),
+      controls: [
         olControls.zoom,
         olControls.mousePositionControl,
-         olControls.scaleLine
+        olControls.scaleLine
 
-      ]    
+      ]
 
     })
-    //初始化临时图层
-    mapHelper.initTemLayers();
-   
-  },
-  initTemLayers () {
-    
-    mapHelper.tempLayers = {
-      _search: "search_Layer", //查询层
-      _common: "common_Layer", //展示层
-     
-      search_Layer: null,
-      common_Layer: null,
-      init: function () {       
-        this.search_Layer = mapHelper.createVecLayer(this._search)
-        mapHelper.map.addLayer(this.search_Layer);
-        this.common_Layer = mapHelper.createVecLayer(this._common)
-        mapHelper.map.addLayer(this.common_Layer);
-      },
-      clear: function () {
-      
-        this.search_Layer.getSource().clear();
-        this.common_Layer.getSource().clear();
-      }
-    }
-    //创建临时图层
-    mapHelper.tempLayers.init()
+    //工具初始化
+    toolsHelper.initTools();
 
-
-  },  
+  }, 
   //通过名字移除图层
   removeLayerByName(name) {
     let layer = mapHelper.getLayerByName(name)
@@ -187,7 +189,7 @@ measureStyle:new Style({
     return layer
   },
   // 获取所有图层
-  getAllLayers () {
+  getAllLayers() {
     let layers = mapHelper.map.getLayers().getArray()
     return layers
   },
@@ -220,7 +222,7 @@ measureStyle:new Style({
     });
 
     return vectorLayer
-  },
+  }, 
   //底图地图可见性-设置为ture 的数组--存储name
   changeBaseMapVisible: function (strs) {
 
@@ -240,292 +242,382 @@ measureStyle:new Style({
         layer.setVisible(true)
       }
     }
-  },
-  //-----------------------------工具栏-----------------------------------
-  //定位
-  setLocation: function (locate) {
-    console.log(locate)
-    //经度0-180，维度0-90
-    let longrg = /^-?(([0-9]|[0-9][0-9]|1[0-7][0-9])(\.[0-9]+)?|180)$/;
-    let latreg = /^-?([0-8]?[0-9](\.[0-9]+)?|90)$/;
-    const lon = locate[0]
-    const lat = locate[1]
-    alert(lon)
-    alert(lat)
-    if (!longrg.test(lon)) {
-      return '经度范围为0-180';
-    }
-    if (!latreg.test(lat)) {
-      return '纬度范围0-90';
-    }
-    //创建图标
-    var locationIcon = new Style({
-      image: new Icon(({
-        color: [0, 109, 255, 0.5],
-        anchor: [0.5, 1],
-        scale: 0.7,
-        crossOrigin: 'anonymous',
-        src: require('../assets/img/toolIcons/pos.png'),
-
-      }))
-    });
-    //创建要素
-    var feature = new Feature({
-      geometry: new Point([parseFloat(lon), parseFloat(lat)])
-    });
-    //要素设置 图标
-    feature.setStyle(locationIcon)
-
-    //展示层加载要素
-
-    mapHelper.tempLayers.common_Layer.getSource().addFeature(feature);
-    mapHelper.tempLayers.common_Layer.setVisible(true)
-
-    //设置视图中心
-    mapHelper.map.getView().setCenter([parseFloat(lon), parseFloat(lat)])
-    return 'ok'
-  },
-//添加绘图
-  addPoltInteraction(type) {
-    mapHelper.addPoltInteractionFun(type)
-  },
-  //标绘方法 --layer -标绘
-  addPoltInteractionFun(type) {
-    if (mapHelper.plottingOption.draw != null) {
-      mapHelper.map.removeInteraction(mapHelper.plottingOption.draw); // 防止多次点击添加多个图层
-    }
-    let source = new VectorSource();
-    let style = null;
-    let _type = type;
-    let geometryFunction = null;
-    if (type == "Box") {
-      geometryFunction = createBox();
-    } else {
-      geometryFunction = null;
-    }
-    if (type != "Box") {
-      _type = type;
-    } else if (type == "Box") {
-      _type = "Circle";
-    }
-    //绘制时的样式
-    mapHelper.plottingOption.draw = new Draw({
-      source: source,
-      type: _type,
-      style: mapHelper.drawStyle,
-      geometryFunction: geometryFunction
-    });
-    //添加Interaction
-    mapHelper.map.addInteraction(mapHelper.plottingOption.draw);
-    //监听绘制开始
-    mapHelper.plottingOption.draw.on("drawstart", evt => {
-     
-      mapHelper.plottingOption.sketch = evt.feature;
-      let plottingLayer = new VectorLayer({
-        source: source,
-        style: mapHelper.drawStyle,
-        zIndex: 9,
-        name: "标绘"
-      });
-      mapHelper.map.addLayer(plottingLayer);
-
-    });
-    mapHelper.plottingOption.draw.on("drawend", evt => {
-     
-      mapHelper.map.removeInteraction(mapHelper.plottingOption.draw);
-    });
-  },  
-  // 添加测量标注
-  createMeasureTooltip() {
-    if (mapHelper.measureOption.measureTooltipElement) {
-      mapHelper.measureOption.measureTooltipElement.parentNode.removeChild(
-        mapHelper.measureOption.measureTooltipElement
-      );
-    }
-    mapHelper.measureOption.measureTooltipElement = document.createElement(
-      "div"
-    );
-    mapHelper.measureOption.measureTooltipElement.className =
-      "ol-tooltip ol-tooltip-measure";
-    mapHelper.measureOption.measureTooltip = new OlOverlay({
-      id: "空间测量",
-      element: mapHelper.measureOption.measureTooltipElement,
-      offset: [0, -15],
-      positioning: "bottom-center"
-    });
-    mapHelper.map.addOverlay(mapHelper.measureOption.measureTooltip);
-  },
-  //添加测量标注
-  createHelpTooltip() {
-    if (mapHelper.measureOption.helpTooltipElement) {
-      mapHelper.measureOption.helpTooltipElement.parentNode.removeChild(
-        mapHelper.measureOption.helpTooltipElement
-      );
-    }
-    mapHelper.measureOption.helpTooltipElement = document.createElement(
-      "div"
-    );
-    mapHelper.measureOption.helpTooltipElement.className =
-      "ol-tooltip hidden";
-    mapHelper.measureOption.helpTooltip = new OlOverlay({
-      id: "空间测量",
-      element: mapHelper.measureOption.helpTooltipElement,
-      offset: [15, 0],
-      positioning: "center-left"
-    });
-  },
-  // 格式化距离
-  formatLength(line) {
-    let sourceProj = mapHelper.map.getView().getProjection(); // 获取投影坐标系
-    let length = getLength(line, {
-      projection: sourceProj
-    });
-    let output;
-    if (length > 100) {
-      output = Math.round((length / 1000) * 100) / 100 + " " + "km";
-    } else {
-      output = Math.round(length * 100) / 100 + " " + "m";
-    }
-    return output;
-  },
-  // 格式化面积
-  formatArea(polygon) {
-    let sourceProj = mapHelper.map.getView().getProjection(); // 获取投影坐标系
-    let area = getArea(polygon, {
-      projection: sourceProj
-    });
-    let output;
-    if (area > 10000) {
-      output =
-        Math.round((area / 1000000) * 100) / 100 +
-        " " +
-        "km<sup>2</sup>";
-    } else {
-      output = Math.round(area * 100) / 100 + " " + "m<sup>2</sup>";
-    }
-    return output;
-  },
-  // 设置提示信息
-  pointerMoveHandler(evt) {
-    if (evt.dragging) {
-      return;
-    }   
-    if (mapHelper.measureOption.sketch) {
-      let geom = mapHelper.measureOption.sketch.getGeometry();
-      if (geom instanceof Polygon) {
-        mapHelper.measureOption.helpMsg = mapHelper.measureOption.continuePolygonMsg;
-      } else if (geom instanceof LineString) {
-        mapHelper.measureOption.helpMsg = mapHelper.measureOption.continueLineMsg;
+  }
+ 
+}
+//--------------------------地图工具 Helper-----------------------------
+export let toolsHelper={
+//临时图层
+tempLayers:{},
+ // 标绘设置
+ plottingOption: {
+  textVector: null,
+  layer: null,
+  sketch: null,
+  draw: null,
+  listener: null
+},
+//绘图样式-标绘
+drawStyle: new Style({
+  fill: new Fill({
+    color: "rgba(255,255,255,.5)"
+  }),
+  stroke: new Stroke({
+    color: "yellow",
+    lineDash: [10, 10],
+    width: 2
+  }),
+  image: new Circle({
+    radius: 5,
+    stroke: new Stroke({
+      color: "yellow"
+    }),
+    fill: new Fill({
+      color: "red"
+    })
+  })
+}),
+//空间测量设置
+measureOption: {
+  layer: null,
+  sketch: null,
+  helpTooltipElement: null,
+  helpTooltip: null,
+  measureTooltipElement: null,
+  measureTooltip: null,
+  continuePolygonMsg: "",
+  continueLineMsg: "",
+  helpMsg: "",
+  draw: null,
+  listener: null,
+  popupcloser: null
+},
+//测量 样式
+measureStyle: new Style({
+  fill: new Fill({
+    color: "rgba(255,255,255,.5)"
+  }),
+  stroke: new Stroke({
+    color: "blue",
+    lineDash: [10, 10],
+    width: 2
+  }),
+  image: new Circle({
+    radius: 5,
+    stroke: new Stroke({
+      color: "yellow"
+    }),
+    fill: new Fill({
+      color: "red"
+    })
+  })
+}),
+//初始化tool
+initTools(){
+    toolsHelper.tempLayers={
+      common_Layer:null,
+      _common: "common_Layer", //展示层
+      init: function () {   
+        this.common_Layer = mapHelper.createVecLayer(this._common)
+        mapHelper.map.addLayer(this.common_Layer);
+      },
+      clear: function () {
+        this.common_Layer.getSource().clear();
       }
     }
-    mapHelper.measureOption.helpTooltipElement.innerHTML = mapHelper.measureOption.helpMsg;
-    mapHelper.measureOption.helpTooltip.setPosition(evt.coordinate);
-    mapHelper.measureOption.helpTooltipElement.classList.remove("hidden");
-    
-  },
-  //空间测量
- 
-  spaceMeasure(measureType) {
-   
-   mapHelper.map.on("pointermove", mapHelper.pointerMoveHandler);
-  mapHelper.map.getViewport().addEventListener("mouseout", () => {
-    mapHelper.measureOption.helpTooltipElement.classList.add("hidden");
-  });
-  mapHelper.addInteractionFun(measureType);
+    toolsHelper.tempLayers.init()
 },
+ //定位
+ setLocation(locate) {  
+  //经度0-180，维度0-90
+  let longrg = /^-?(([0-9]|[0-9][0-9]|1[0-7][0-9])(\.[0-9]+)?|180)$/;
+  let latreg = /^-?([0-8]?[0-9](\.[0-9]+)?|90)$/;
+  const lon = locate[0]
+  const lat = locate[1] 
+  if (!longrg.test(lon)) {
+    return '经度范围为0-180';
+  }
+  if (!latreg.test(lat)) {
+    return '纬度范围0-90';
+  }
+  //创建图标
+  var locationIcon = new Style({
+    image: new Icon(({
+      color: [0, 109, 255, 0.5],
+      anchor: [0.5, 1],
+      scale: 0.7,
+      crossOrigin: 'anonymous',
+      src: require('../assets/img/toolIcons/pos.png'),
+
+    }))
+  });
+  //创建要素
+  var feature = new Feature({
+    geometry: new Point([parseFloat(lon), parseFloat(lat)])
+  });
+  //要素设置 图标
+  feature.setStyle(locationIcon)
+
+  //展示层加载要素
+  toolsHelper.tempLayers.common_Layer.getSource().addFeature(feature);
+  toolsHelper.tempLayers.common_Layer.setVisible(true)
+  //设置视图中心
+  mapHelper.map.getView().setCenter([parseFloat(lon), parseFloat(lat)])
+  return 'ok'
+},
+//添加绘图
+addPoltInteraction(type) {
+  toolsHelper.addPoltInteractionFun(type)
+},
+//标绘方法 --layer -标绘
+addPoltInteractionFun(type) {
+  if (toolsHelper.plottingOption.draw != null) {
+    mapHelper.map.removeInteraction(toolsHelper.plottingOption.draw); // 防止多次点击添加多个图层
+  }
+  let source = new VectorSource();
+  let style = null;
+  let _type = type;
+  let geometryFunction = null;
+  if (type == "Box") {
+    geometryFunction = createBox();
+  } else {
+    geometryFunction = null;
+  }
+  if (type != "Box") {
+    _type = type;
+  } else if (type == "Box") {
+    _type = "Circle";
+  }
+  //绘制时的样式
+  toolsHelper.plottingOption.draw = new Draw({
+    source: source,
+    type: _type,
+    style: toolsHelper.drawStyle,
+    geometryFunction: geometryFunction
+  });
+  //添加Interaction
+  mapHelper.map.addInteraction(toolsHelper.plottingOption.draw);
+  //监听绘制开始
+  toolsHelper.plottingOption.draw.on("drawstart", evt => {
+    toolsHelper.plottingOption.sketch = evt.feature;
+    let plottingLayer = new VectorLayer({
+      source: source,
+      style: toolsHelper.drawStyle,
+      zIndex: 9,
+      name: "标绘"
+    });
+    mapHelper.map.addLayer(plottingLayer);
+
+  });
+  toolsHelper.plottingOption.draw.on("drawend", evt => {
+    mapHelper.map.removeInteraction(toolsHelper.plottingOption.draw);
+  });
+},
+// 添加测量标注
+createMeasureTooltip() {
+  if (toolsHelper.measureOption.measureTooltipElement) {
+    toolsHelper.measureOption.measureTooltipElement.parentNode.removeChild(
+      toolsHelper.measureOption.measureTooltipElement
+    );
+  }
+  toolsHelper.measureOption.measureTooltipElement = document.createElement(
+    "div"
+  );
+  toolsHelper.measureOption.measureTooltipElement.className =
+    "ol-tooltip ol-tooltip-measure";
+    toolsHelper.measureOption.measureTooltip = new OlOverlay({
+    id: "空间测量",
+    element: toolsHelper.measureOption.measureTooltipElement,
+    offset: [0, -15],
+    positioning: "bottom-center"
+  });
+  mapHelper.map.addOverlay(toolsHelper.measureOption.measureTooltip);
+},
+//添加测量标注
+createHelpTooltip() {
+  if (toolsHelper.measureOption.helpTooltipElement) {
+    toolsHelper.measureOption.helpTooltipElement.parentNode.removeChild(
+      toolsHelper.measureOption.helpTooltipElement
+    );
+  }
+  toolsHelper.measureOption.helpTooltipElement = document.createElement(
+    "div"
+  );
+  toolsHelper.measureOption.helpTooltipElement.className =
+    "ol-tooltip hidden";
+    toolsHelper.measureOption.helpTooltip = new OlOverlay({
+    id: "空间测量",
+    element: toolsHelper.measureOption.helpTooltipElement,
+    offset: [15, 0],
+    positioning: "center-left"
+  });
+},
+//格式化距离
+formatLength(line) {
+  let sourceProj = mapHelper.map.getView().getProjection(); // 获取投影坐标系
+  let length = getLength(line, {
+    projection: sourceProj
+  });
+  let output;
+  if (length > 100) {
+    output = Math.round((length / 1000) * 100) / 100 + " " + "km";
+  } else {
+    output = Math.round(length * 100) / 100 + " " + "m";
+  }
+  return output;
+},
+//格式化面积
+formatArea(polygon) {
+  let sourceProj = mapHelper.map.getView().getProjection(); // 获取投影坐标系
+  let area = getArea(polygon, {
+    projection: sourceProj
+  });
+  let output;
+  if (area > 10000) {
+    output =
+      Math.round((area / 1000000) * 100) / 100 +
+      " " +
+      "km<sup>2</sup>";
+  } else {
+    output = Math.round(area * 100) / 100 + " " + "m<sup>2</sup>";
+  }
+  return output;
+},
+//设置提示信息
+pointerMoveHandler(evt) {
+  if (evt.dragging) {
+    return;
+  }
+  if (toolsHelper.measureOption.sketch) {
+    let geom = toolsHelper.measureOption.sketch.getGeometry();
+    if (geom instanceof Polygon) {
+      toolsHelper.measureOption.helpMsg = toolsHelper.measureOption.continuePolygonMsg;
+    } else if (geom instanceof LineString) {
+      toolsHelper.measureOption.helpMsg = toolsHelper.measureOption.continueLineMsg;
+    }
+  }
+  toolsHelper.measureOption.helpTooltipElement.innerHTML = toolsHelper.measureOption.helpMsg;
+  toolsHelper.measureOption.helpTooltip.setPosition(evt.coordinate);
+  toolsHelper.measureOption.helpTooltipElement.classList.remove("hidden");
+
+},
+//空间测量
+spaceMeasure(measureType) {
+
+  mapHelper.map.on("pointermove", toolsHelper.pointerMoveHandler);
+  mapHelper.map.getViewport().addEventListener("mouseout", () => {
+    toolsHelper.measureOption.helpTooltipElement.classList.add("hidden");
+  });
+  toolsHelper.addInteractionFun(measureType);
+},
+//添加标注
 addInteractionFun(measureType) {
-  
-  if (mapHelper.measureOption.draw != null) {
-    mapHelper.map.removeInteraction(mapHelper.measureOption.draw); // 防止多次点击添加多个图层
+
+  if (toolsHelper.measureOption.draw != null) {
+    mapHelper.map.removeInteraction(toolsHelper.measureOption.draw); // 防止多次点击添加多个图层
   }
   let source = new VectorSource();
   // 绘制时的样式
-  mapHelper.measureOption.draw = new Draw({
+  toolsHelper.measureOption.draw = new Draw({
     source: source,
     type: measureType,
-    style: mapHelper.measureStyle
+    style: toolsHelper.measureStyle
   });
-  mapHelper.map.addInteraction(mapHelper.measureOption.draw);
-  mapHelper.measureOption.draw.on("drawstart", evt => {
-    mapHelper.measureOption.sketch = evt.feature;
-    let type = mapHelper.measureOption.sketch.getGeometry();
+  mapHelper.map.addInteraction(toolsHelper.measureOption.draw);
+  toolsHelper.measureOption.draw.on("drawstart", evt => {
+    toolsHelper.measureOption.sketch = evt.feature;
+    let type = toolsHelper.measureOption.sketch.getGeometry();
     if (type instanceof Point) {
       // 如果是绘制点
-      let pointCoordinates = mapHelper.measureOption.sketch.getGeometry()
+      let pointCoordinates = toolsHelper.measureOption.sketch.getGeometry()
         .flatCoordinates;
-        mapHelper.measureOption.measureTooltipElement.innerHTML = pointCoordinates;
-        mapHelper.measureOption.measureTooltip.setPosition(
+        toolsHelper.measureOption.measureTooltipElement.innerHTML = pointCoordinates;
+        toolsHelper.measureOption.measureTooltip.setPosition(
         pointCoordinates
       );
     } else {
       // 如果是绘制线和面
       let tooltipCoord = evt.coordinate;
-      mapHelper.measureOption.listener = mapHelper.measureOption.sketch
+      toolsHelper.measureOption.listener = toolsHelper.measureOption.sketch
         .getGeometry()
         .on("change", evt => {
           let geom = evt.target;
           let output;
           if (geom instanceof Polygon) {
-            output = mapHelper.formatArea(geom);
+            output = toolsHelper.formatArea(geom);
             tooltipCoord = geom
               .getInteriorPoint()
               .getCoordinates();
           } else if (geom instanceof LineString) {
-            output = mapHelper.formatLength(geom);
+            output = toolsHelper.formatLength(geom);
             tooltipCoord = geom.getLastCoordinate();
           }
-          mapHelper.measureOption.measureTooltipElement.innerHTML = output;
-          mapHelper.measureOption.measureTooltip.setPosition(
+          toolsHelper.measureOption.measureTooltipElement.innerHTML = output;
+          toolsHelper.measureOption.measureTooltip.setPosition(
             tooltipCoord
           );
         });
     }
   });
 
-  mapHelper.measureOption.draw.on("drawend", () => {  
-    mapHelper.measureOption.measureTooltipElement.appendChild(
-      mapHelper.measureOption.popupcloser
+  toolsHelper.measureOption.draw.on("drawend", () => {
+    toolsHelper.measureOption.measureTooltipElement.appendChild(
+      toolsHelper.measureOption.popupcloser
     );
-    mapHelper.measureOption.measureTooltipElement.className =
+    toolsHelper.measureOption.measureTooltipElement.className =
       "ol-tooltip ol-tooltip-static";
-      mapHelper.measureOption.measureTooltip.setOffset([0, -7]);
-      mapHelper.measureOption.sketch = null;
-      mapHelper.measureOption.measureTooltipElement = null;
-      mapHelper.createMeasureTooltip();
-    mapHelper.map.un("pointermove",mapHelper.pointerMoveHandler);
-    mapHelper.map.removeInteraction(mapHelper.measureOption.draw);
-    mapHelper.measureOption.helpTooltipElement.classList.add("hidden");
+      toolsHelper.measureOption.measureTooltip.setOffset([0, -7]);
+      toolsHelper.measureOption.sketch = null;
+      toolsHelper.measureOption.measureTooltipElement = null;
+    toolsHelper.createMeasureTooltip();
+    mapHelper.map.un("pointermove", toolsHelper.pointerMoveHandler);
+    mapHelper.map.removeInteraction(toolsHelper.measureOption.draw);
+    toolsHelper.measureOption.helpTooltipElement.classList.add("hidden");
   });
   // 将画好的 VectorLayer 图层添加到 map 中
   let measureLayer = new VectorLayer({
     source: source,
-    style: mapHelper.measureStyle,
+    style: toolsHelper.measureStyle,
     zIndex: 9,
     name: "空间测量"
   });
   mapHelper.map.addLayer(measureLayer);
-  mapHelper.createMeasureTooltip();
-  mapHelper.createHelpTooltip();
+  toolsHelper.createMeasureTooltip();
+  toolsHelper.createHelpTooltip();
   // 删除测量标注
-  mapHelper.measureOption.popupcloser = document.createElement("a");
-  mapHelper.measureOption.popupcloser.innerHTML =
+  toolsHelper.measureOption.popupcloser = document.createElement("a");
+  toolsHelper.measureOption.popupcloser.innerHTML =
     '<span style="color:red;font-size:18px;"></span>';
-    mapHelper.measureOption.popupcloser.href = "javascript:void(0);";
-    mapHelper.measureOption.popupcloser.classList.add("ol-popup-closer");
-    mapHelper.measureOption.popupcloser.onclick = e => {
+    toolsHelper.measureOption.popupcloser.href = "javascript:void(0);";
+    toolsHelper.measureOption.popupcloser.classList.add("ol-popup-closer");
+    toolsHelper.measureOption.popupcloser.onclick = e => {
     let parentNode = e.target.parentNode.parentNode.parentNode;
     parentNode.remove();
     measureLayer.getSource().clear();
   };
 },
-// 清除空间测量
-clearToolDraw(){
-  mapHelper.tempLayers.clear();
-    mapHelper.removeLayerByName('标绘')
-    mapHelper.removeLayerByName('空间测量')
-    mapHelper.map.un("pointermove", mapHelper.pointerMoveHandler);
-    mapHelper.map.removeInteraction(mapHelper.plottingOption.draw);
-    mapHelper.removeAllOverlay()
+//清除工具标绘
+clearToolDraw() {
+  toolsHelper.tempLayers.clear();
+  mapHelper.removeLayerByName('标绘')
+  mapHelper.removeLayerByName('空间测量')
+  mapHelper.map.un("pointermove", toolsHelper.pointerMoveHandler);
+  mapHelper.map.removeInteraction(toolsHelper.plottingOption.draw);
+  mapHelper.removeAllOverlay()
 }
+
 }
-export default mapHelper
+
+// //图层管理
+export let layerManager={
+  //添加自定义本地服务
+  //@ type--服务类型  url --- 服务地址， prj -- 服务坐标  remark -备注信息
+  // allLayers:mapHelper.getAllLayers(),
+  // baseLayers:mapHelper.getBaseLayers(),
+  // addLocalLayer(type,url,prj,remark){
+
+  // }
+
+
+
+ }

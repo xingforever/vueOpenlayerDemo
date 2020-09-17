@@ -11,10 +11,10 @@
 </template>
 
 <script>
-import mapHelper from '../../utils/mapHelper.js'
+  import{ toolsHelper, mapHelper}  from '../../utils/mapHelper.js'
 
     export default {
-        name: 'MapChange',
+        name: 'map-change',
         data() {
             return {              
               active: false,

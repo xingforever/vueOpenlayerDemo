@@ -4,7 +4,7 @@ import TileLayer from 'ol/layer/Tile'
 
 const mapSrc = mapconfig.mapSrc
 //底图图层
-const baseLayers = {
+export  const baseLayers = {
 
     /*天地图矢量*/
     tdtVec: new TileLayer({

@@ -14,9 +14,9 @@
 </template>
 
 <script>
-  import mapHelper from '../../utils/mapHelper';
+  import{ toolsHelper, mapHelper}  from '../../utils/mapHelper.js'
   export default {
-    name: 'MapTool',
+    name: 'map-tools',
     data() {
       return {
         options: [
@@ -67,7 +67,7 @@
             });
             return;
           }
-          const msg = mapHelper.setLocation(arr)
+          const msg = toolsHelper.setLocation(arr)
           if (msg != 'ok') {
             this.$message({
               type: 'info',
@@ -79,25 +79,25 @@
       changeTools(val) {
         switch (val) {
           case 'MeasurePoint':
-            mapHelper.spaceMeasure('Point')
+            toolsHelper.spaceMeasure('Point')
             break;
           case 'MeasureLineString':
-            mapHelper.spaceMeasure('LineString')
+            toolsHelper.spaceMeasure('LineString')
             break;
           case 'MeasurePolygon':
-            mapHelper.spaceMeasure('Polygon')
+            toolsHelper.spaceMeasure('Polygon')
             break;
           case 'DrawLineString':
-            mapHelper.addPoltInteraction('LineString')
+            toolsHelper.addPoltInteraction('LineString')
             break;
           case 'DrawPoint':
-            mapHelper.addPoltInteraction('Point')
+            toolsHelper.addPoltInteraction('Point')
             break;
           case 'DrawBox':
-            mapHelper.addPoltInteraction('Box')
+            toolsHelper.addPoltInteraction('Box')
             break;
           case 'DrawPolygon':
-            mapHelper.addPoltInteraction('Polygon')
+            toolsHelper.addPoltInteraction('Polygon')
           default:
             break
         }
@@ -106,7 +106,7 @@
        
       },      
       clearAll() {
-      mapHelper.clearToolDraw()
+      toolsHelper.clearToolDraw()
       }
     }
   }
