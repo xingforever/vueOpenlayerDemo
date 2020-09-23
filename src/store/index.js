@@ -1,9 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { Map, View } from "ol";
-import mapconfig from '../config/mapconfig.js'
-import baseLayers from'../utils/baseLayers.js'
-import olControls from '../utils/olControls.js'
+
+
 
 
 Vue.use(Vuex)

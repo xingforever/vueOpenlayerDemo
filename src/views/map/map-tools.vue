@@ -2,8 +2,8 @@
 
   <div class="mapTools">
     <el-button type="info" icon="el-icon-picture" class="toolButton" plain>规划专题图</el-button>
-    <el-button type="info" icon="el-icon-folder-add" class="toolButton" plain>加载</el-button>
-    <el-button type="info" icon="el-icon-search" class="toolButton" plain>查询</el-button>
+    <el-button type="info" icon="el-icon-folder-add" class="toolButton" @click="loadMapService" plain>加载</el-button>
+    <el-button type="info" icon="el-icon-search" class="toolButton" plain @click="loadMAPWMS">查询</el-button>
     <el-button type="info" icon="el-icon-map-location" class="toolButton" @click="location" plain>定位</el-button>  
     <el-button type="info" icon="el-icon-delete" class="toolButton" @click="clearAll" plain>清除</el-button>
     <el-select class="toolSelect" ref="EL_toolSelect" v-model="value" @change="changeTools" :popper-append-to-body="false"   placeholder="工具" >
@@ -14,7 +14,7 @@
 </template>
 
 <script>
-  import{ toolsHelper, mapHelper}  from '../../utils/mapHelper.js'
+  import{ toolsHelper, mapHelper,layerManager}  from '../../utils/mapHelper.js'
   export default {
     name: 'map-tools',
     data() {
@@ -76,6 +76,15 @@
           }
         })
       },
+      loadMapService(){
+     layerManager.testAddWMS();
+      },
+     async  loadMAPWMS(){
+         
+    layerManager.testAddWMS();
+
+      },
+
       changeTools(val) {
         switch (val) {
           case 'MeasurePoint':

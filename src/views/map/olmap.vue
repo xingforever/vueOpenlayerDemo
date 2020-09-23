@@ -29,7 +29,7 @@
       mapHelper.initMap()
       this.map = mapHelper.map     
       //设置默认显示图层
-      mapHelper.changeBaseMapVisible(["tdtVec","tdtCva"])
+    // mapHelper.changeBaseMapVisible(["tdtImg","tdtCia"])
       
     }
   };
