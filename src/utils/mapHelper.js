@@ -60,6 +60,7 @@ import {Image as ImageLayer} from 'ol/layer';
 import {bbox as bboxStrategy} from 'ol/loadingstrategy';
 import EsriJSON from 'ol/format/EsriJSON';
 import axiosHelper from '@/router/axiosHelper'
+import { map } from "core-js/fn/array";
 
 const mapSrc = mapconfig.mapSrc
 
@@ -228,7 +229,7 @@ export let mapHelper = {
   },
   //通过名字移除图层
   removeLayerByName(name) {
-    let layer = mapHelper.getLayerByName(name)
+    let layer = mapHelper.getLayerByNameArr(name)
     if (typeof (layer) == "undefined") {
       return;
     }
@@ -244,12 +245,22 @@ export let mapHelper = {
     });
   },
   // 根据图层名获取图层
-  getLayerByName(name) {
+  getLayerByNameArr(name) {
     let allLayers = mapHelper.getAllLayersArray()
     let layer = allLayers.filter(item => {
       return item.get('name') === name
     })
     return layer
+  },
+  getLayerByName(name) {
+    let allLayers = mapHelper.getAllLayersArray()
+    let layer = allLayers.filter(item => {
+      return item.get('name') === name
+    })
+    if(layer.length>0){
+      return layer[0]
+    }
+    return;
   },
   // 获取所有图层
   getAllLayers() {
@@ -296,7 +307,7 @@ export let mapHelper = {
     //   //先获取所有底图图层, 并且设置Visible为false
     let arr = mapconfig.baseMapNames
     for (let i = 0; i < arr.length; i++) {
-      let layer = mapHelper.getLayerByName(arr[i])[0]
+      let layer = mapHelper.getLayerByName(arr[i])
       if (layer != null) {
         layer.setVisible(false)
       }
@@ -304,7 +315,7 @@ export let mapHelper = {
     // 对 进行显示的图层 设置Visible 为true 
     for (let i = 0; i < strs.length; i++) {
       // console.log(strs[i])
-      let layer = mapHelper.getLayerByName(strs[i])[0]
+      let layer = mapHelper.getLayerByName(strs[i])
       if (layer != null) {
         layer.setVisible(true)
       }
@@ -749,11 +760,27 @@ export let layerManager = {
 
     },
     {
-      mapService_Name:'KXGK',//名称
-      mapServie_Alias:'控规道路',//别名
+      mapService_Name:'GXKG2',//名称
+      mapServie_Alias:'赣县控规2',//别名
       mapServie_Type:'WMS',//类型
-      mapService_Url:'http://192.168.1.112:6080/arcgis/rest/services/test/KGDL/MapServer',// 数组
-      mapServie_Info:'控规道路',//信息
+      mapService_Url:'http://192.168.1.112:6080/arcgis/rest/services/test/GXKG2/MapServer',// 数组
+      mapServie_Info:'赣县控规2',//信息
+      mapService_Index:0,//图层位置
+      mapService_Prj:'4327',//坐标系
+      mapService_Center:'',//服务的地图中心
+      mapService_extent:[],//服务的显示范围
+      mapService_params:{},//服务 附带的参数设置
+      mapService_className:'控规',//服务的分组
+      mapService_Server:'ArcGIS Server',//服务的分组
+      mapService_IsShow:true
+
+    },
+    {
+      mapService_Name:'GXKG',//名称
+      mapServie_Alias:'赣县控规',//别名
+      mapServie_Type:'WMS',//类型
+      mapService_Url:'http://192.168.1.112:6080/arcgis/rest/services/test/GXKG/MapServer',// 数组
+      mapServie_Info:'赣县控规',//信息
       mapService_Index:0,//图层位置
       mapService_Prj:'4327',//坐标系
       mapService_Center:'',//服务的地图中心
@@ -769,73 +796,159 @@ export let layerManager = {
 
 
   },
+  //数据中是否存在该服务---------- 暂时不使用
+  IsEXistMapService(name) {
+    layerManager.mapServicesDatas.forEach(function (value, i) {
+      //查询是否存在名称一样的
+      if (value.mapService_Name == name) {
+        return true;
+      }
+    })
+    return false;
+  },
 
-   AddMapService(name){
-    layerManager.mapServicesDatas.forEach(function(value,i){
-      　　if(value.mapServie_Type=='WMS'){
-           if(value.mapService_Server=="ArcGIS Server"){
-             //添加ArcGIS Server 的WMS服务
-             if(name==value.mapService_Name){
-              const res=layerManager.AddArcGISWMSService(value)
-              if(res){
-                //管理图层添加信息'
-                console.log(value)                
-                layerManager.mangerLayer.push(value)
-              }
-             }
-             
-           }
-           }
-           else if(value.mapServie_Type=='WMTS'){
-
-           }else if(value.mapServie_Type=='WFS'){
-
-           }
-           
-       
-      })
-
-
+  //目前已经加载的服务中是否存在某服务
+   IsEXistLoadedMapService(name) {
+     layerManager.mangerLayer.forEach(function (value, i) {
+       //查询是否存在名称一样的
+       if (value.mapService_Name == name) {
+         return true;
+       }
+     })
+     return false;
    },
 
+   AddMapService(name) {
+     layerManager.mapServicesDatas.forEach(function (value, i) {
+       if (value.mapServie_Type == 'WMS') {
+         //添加ArcGIS Server 的WMS服务
+         if (value.mapService_Server == "ArcGIS Server") {
+           //名字匹配           
+           if (name == value.mapService_Name) {
+             //检测是否已经存在图层管理中
+             if (layerManager.IsEXistLoadedMapService(name)) {
+               return "已经加载了该服务，无法再次添加！"
+             } else {
+               //添加图层 -成功返回success 失败返回错误原因
+               const res = layerManager.AddArcGISWMSService(value)
+               if (res == "success") {
+                 //管理图层添加信息'                               
+                 layerManager.mangerLayer.unshift(value)
+                 return "success"
+               } else {
+                 return res
+               }
+             }
+           }
+         }
+       } else if (value.mapServie_Type == 'WMTS') {
+         if (value.mapService_Server == "ArcGIS Server") {
+           if (name == value.mapService_Name) {
+             if (layerManager.IsEXistLoadedMapService(name)) {
+               return "已经加载了该图层"
+             } else {
+               //添加图层 -成功返回success 失败返回错误原因
+               const res = layerManager.AddArcGISWMTSService(value)
+               if (res == "success") {
+                 //管理图层添加信息'                               
+                 layerManager.mangerLayer.push(value)
+               } else {
+                 return res
+               }
+             }
+           }
+         }
+       } else if (value.mapServie_Type == 'WFS') {
+
+       }
+     })
+   },
+//加载ArcGIS 发布的动态地图服务
    AddArcGISWMSService(mapServicesData){
-    try {
-      var arcGisSource = new TileArcGISRest({
-        url: mapServicesData.mapService_Url
-      })
-      console.log(mapServicesData.mapService_Url)
+    try {       
       var arcGISLayers = new TileLayer({
-        source: arcGisSource,
-        name:mapServicesData. mapService_Name,
-        opacity: 0.8,
-        visible: true
+        source: new TileArcGISRest({
+          url: mapServicesData.mapService_Url
+        }) ,
+        name:mapServicesData. mapService_Name,       
+        visible: true,
+        zIndex:0
+
       })
      // var extent=arcGISLayers.getExtent();
       mapHelper.map.addLayer(arcGISLayers)
     //  console.log(extent)
      // mapHelper.ZoonAtExtent(extent)
-      return true ;
+     //console.log(mapHelper.getAllLayers())
+      return "success" ;
    }
-   catch(err){
-      console.log(err)
-       return false;
+   catch(err){     
+       return "发生错误：" +err;
    }
-   
-
+  },
+   //加载ArcGIS 发布的切片服务
+   AddArcGISWMTSService(mapServicesData){
+    try {
+      let wmtsLayer = new ImageLayer({
+        source: new ImageArcGISRest({
+          url: mapServicesData.mapService_Url, //  服务地址 
+        }),
+        visible: true,      
+      })    
+      mapHelper.map.addLayer(wmtsLayer)
+    
+      return "success" ;
+   }
+   catch(err){     
+       return "发生错误：" +err;
+   }
 
     
     return true
     //排序-- 获取map图层顺序
     // --添加至图层管理器中
     //定位显示
+  },
+  //[{sort_Order:,mapService_Name:}] arr
+  //改变图层的位置
+   ChangeLayersIndex(sortClass){
+    
+    const len=sortClass.length
+    sortClass.forEach(function (value, i) {
+      let layer=mapHelper.getLayerByName(value.mapService_Name);
+      // console.log('改变位置前')
+      // console.log(layer)
+      // console.log(value.sort_Order)
+      layer.setZIndex(parseInt(value.sort_Order))
+      // console.log(layer)
+      // console.log('改变位置后')
+     
+    })
+   },
+   //改变图层的可见性
+   ChangeLayerVisble(name,visible){
+    let layer=mapHelper.getLayerByName(name);
+    layer.setVisible(visible)
+   },
+   //移除某个服务图层
+   RemoveLayerByName(name){
+     let theIndex=-1
+    for(let i=0;i<layerManager.mangerLayer.length;i++){
+      let value=layerManager.mangerLayer[i]
+      if(value.mapService_Name==name){
+        theIndex=i;
+        break;
+      }
+    }
+    //图层管理数组移除该数据
+    console.log(theIndex)
+    let res=layerManager.mangerLayer.splice(theIndex,1)
+    console.log(res)
+    //地图图层移除该数据
+     mapHelper.removeLayerByName(name)
+
    },
 
-//改变图层的位置
-   ChangeLayerIndex(name,index){
-    let allLayers=mapHelper.getAllLayers();
-    let layers=mapHelper.getLayerByName(name);
-    allLayers.insertAt(index,layers);
-   },
   testAddWMTS() {
     var origin = [-400.0, 400.0];
     // 分辨率

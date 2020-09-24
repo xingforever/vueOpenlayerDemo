@@ -5,13 +5,16 @@
       @show="showPopver" @hide="hidePopver">
       <draggable v-model="layerList" @update="datadragEnd" :options="{animation:200}">
         <div class="drag-item" v-for="(item,i) in layerList" :key="i">
-          <el-row>
+          <el-row @mouseenter.native="delEnter()" @mouseleave.native="delLeave()">
             <el-col class="line" :span="18">
-              <el-checkbox v-model="item. mapService_IsShow"  @change="changeShow($event,item.mapService_Name)">&nbsp;
+              <el-checkbox :checked="item. mapService_IsShow" @change="changeShow($event,item.mapService_Name)">&nbsp;
                 &nbsp; &nbsp; &nbsp;{{item.mapServie_Alias}}</el-checkbox>
             </el-col>
             <el-col class="line" :span="6">
-              <el-button type="text" size="mini">删除</el-button>
+
+              <el-image v-if="delIsShow" :src="delImgUrl" @click="revLayer(item.mapService_Name)"></el-image>
+
+
             </el-col>
           </el-row>
         </div>
@@ -25,12 +28,17 @@
 
 <script>
   import draggable from 'vuedraggable'
-   import{ mapHelper,layerManager}  from '../../utils/mapHelper.js'
+  import {
+    mapHelper,
+    layerManager
+  } from '../../utils/mapHelper.js'
   export default {
-    name: 'map-tree2',
+    name: 'map-layermanager',
     data() {
       return {
         isActive: false,
+        delIsShow: true,
+        delImgUrl: require('../../assets/img/layer/del.png'),
         layerList: []
         //{
         //     mapService_Name: "hlx",
@@ -59,37 +67,38 @@
         //     mapService_Index: 3,
         //     mapService_IsShow: true
         //   }
-        
+
       }
     },
     components: {
       draggable
     },
     methods: {
-      async datadragEnd(evt) {
+      datadragEnd(evt) {
         evt.preventDefault();
         // console.log('拖动前的索引 :' + evt.oldIndex)
         // console.log('拖动后的索引 :' + evt.newIndex)
         // 遍历数组,将索引值赋值到对应的sort_order上面,完成排序
         let arr = this.layerList;
-        let newArr = await arr.map((item, i) => {
+        let newArr = arr.map((item, i) => {
           return {
-            sort_order: i,
-            mapService_index: item.mapService_Name
+            sort_Order: i,
+            mapService_Name: item.mapService_Name,
+            mapService_url: item.mapService_Url
           };
         });
         //排序后数组
         console.log(newArr)
         //Laymanager sort()
-
-      },
+        layerManager.ChangeLayersIndex(newArr)
+      },     
       initLayers() {
         layerManager.InitLayerManager();
-        //layerManager.AddMapService("KXGK")
-        layerManager.AddMapService("KGDL")
-       layerManager.AddMapService("NKKG")
-       console.log(layerManager.mangerLayer)
-        this.layerList=layerManager.mangerLayer;
+        layerManager.AddMapService("GXKG")
+        layerManager.AddMapService("GXKG2")
+        //  layerManager.AddMapService("NKKG")
+        console.log(layerManager.mangerLayer)
+        this.layerList = layerManager.mangerLayer;
       },
       showPopver() {
         this.isActive = true
@@ -98,10 +107,23 @@
         this.isActive = false
       },
       changeShow(event, name) {
-        //event=true
-        console.log(name)
-        //setVisible
+        // console.log(event)
+        // console.log(name)
+        layerManager.ChangeLayerVisble(name, event)
+      },
+       delEnter() {
+        this.delIsShow = true
+        //console.log("鼠标进入")
+      },
+      delLeave() {
+        this.delIsShow = false
+       // console.log("鼠标移除")
+      },
+      revLayer(name){
+       layerManager.RemoveLayerByName(name)     
+       
       }
+
 
     },
     mounted() {
