@@ -5,16 +5,13 @@
       @show="showPopver" @hide="hidePopver">
       <draggable v-model="layerList" @update="datadragEnd" :options="{animation:200}">
         <div class="drag-item" v-for="(item,i) in layerList" :key="i">
-          <el-row @mouseenter.native="delEnter()" @mouseleave.native="delLeave()">
+          <el-row class="lays"  @mouseenter.native="delEnter()" @mouseleave.native="delLeave()">
             <el-col class="line" :span="18">
               <el-checkbox :checked="item. mapService_IsShow" @change="changeShow($event,item.mapService_Name)">&nbsp;
                 &nbsp; &nbsp; &nbsp;{{item.mapServie_Alias}}</el-checkbox>
             </el-col>
             <el-col class="line" :span="6">
-
               <el-image v-if="delIsShow" :src="delImgUrl" @click="revLayer(item.mapService_Name)"></el-image>
-
-
             </el-col>
           </el-row>
         </div>
@@ -120,7 +117,8 @@
        // console.log("鼠标移除")
       },
       revLayer(name){
-       layerManager.RemoveLayerByName(name)     
+       layerManager.RemoveLayerByName(name) 
+       this.layerList = layerManager.mangerLayer;
        
       }
 
@@ -166,5 +164,14 @@
     width: 35px;
     background-image: url('../../assets/img/layer/open.png');
     padding: 0px 0px !important;
+  }
+  .lays{
+    height: 22px;   
+    margin-bottom: 2px;
+  }
+   .laymanger{
+   right: 30px !important;
+   margin: 0,0 50px!important;
+   text-align:left;
   }
 </style>

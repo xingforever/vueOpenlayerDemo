@@ -6,7 +6,7 @@
     </olmap>
     <mapChange />
     <mapTools />
-    <mapLayermanager/>
+
   </div>
 </template>
 
@@ -16,6 +16,8 @@
   import mapControls from '@/views/map/map-controls'
   import olmap from '@/views/map/olmap'
   import mapLayermanager from '@/views/map/map-layermanager'
+
+
   // 测试
   export default {
     name: 'app',
@@ -24,7 +26,8 @@
       mapControls,
       mapChange,
       mapTools,
-      mapLayermanager
+      mapLayermanager,
+      
     }
   }
 </script>

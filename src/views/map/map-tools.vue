@@ -2,28 +2,39 @@
 
   <div class="mapTools">
     <el-button type="info" icon="el-icon-picture" class="toolButton" plain>规划专题图</el-button>
-    <el-button type="info" icon="el-icon-folder-add" class="toolButton" @click="loadMapService" plain>加载</el-button>
-    <el-button type="info" icon="el-icon-search" class="toolButton" plain @click="loadMAPWMS">查询</el-button>
-    <el-button type="info" icon="el-icon-map-location" class="toolButton" @click="location" plain>定位</el-button>  
+    <el-button type="info" icon="el-icon-folder-add" class="toolButton"  plain>加载</el-button>
+    <el-button type="info" icon="el-icon-search" class="toolButton" plain >查询</el-button>
+    <el-button type="info" icon="el-icon-map-location" class="toolButton" @click="location" plain>定位</el-button>
     <el-button type="info" icon="el-icon-delete" class="toolButton" @click="clearAll" plain>清除</el-button>
-    <el-select class="toolSelect" ref="EL_toolSelect" v-model="value" @change="changeTools" :popper-append-to-body="false"   placeholder="工具" >
+    <el-button type="info" icon="el-icon-s-order" class="toolButton" @click="showManagerlayer" plain>图层管理
+    </el-button>
+    <el-select class="toolSelect" ref="EL_toolSelect" v-model="value" @change="changeTools"
+      :popper-append-to-body="false" placeholder="工具">
       <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
       </el-option>
     </el-select>
+<mapLayermanager2 :panelShow.sync="layManagerShow"></mapLayermanager2> 
+
   </div>
 </template>
 
 <script>
-  import{ toolsHelper, mapHelper,layerManager}  from '../../utils/mapHelper.js'
-  export default {
+  import {
+    toolsHelper,
+    mapHelper,
+    layerManager
+  } from '../../utils/mapHelper.js'
+  import mapLayermanager2 from '@/views/map/map-layermanager2'
+  import draggable from 'vuedraggable'
+  export default {    
     name: 'map-tools',
     data() {
       return {
-        options: [
-          {
+        dialogTableVisible: false,
+        options: [{
           value: 'MeasurePoint',
           label: '测点'
-        },{
+        }, {
           value: 'MeasureLineString',
           label: '测距离'
         }, {
@@ -42,8 +53,13 @@
           value: 'DrawPolygon',
           label: '绘制面'
         }],
-        value: '工具'
+        value: '工具',
+        layManagerShow:false,        
       }
+    },
+    components: {
+      draggable,
+     mapLayermanager2
     },
     methods: {
       location() {
@@ -76,15 +92,6 @@
           }
         })
       },
-      loadMapService(){
-     layerManager.testAddWMS();
-      },
-     async  loadMAPWMS(){
-         
-    layerManager.testAddWMS();
-
-      },
-
       changeTools(val) {
         switch (val) {
           case 'MeasurePoint':
@@ -111,51 +118,60 @@
             break
         }
         //重置为不选择
-        this.value="工具";
-       
-      },      
+        this.value = "工具";
+
+      },
       clearAll() {
-      toolsHelper.clearToolDraw()
+        toolsHelper.clearToolDraw()
+      },     
+      showManagerlayer(){
+      this.layManagerShow=true
       }
+   
+      
+
     }
   }
 </script>
 
 <style lang="less" scoped>
-
   .mapTools {
     position: absolute;
     top: 40px;
-    right: 30px;
+    right: 50px;
     z-index: 3;
-    cursor: pointer;   
+    cursor: pointer;
     background-color: white;
     border-radius: 6px;
 
   }
 
-  .toolButton {   
+  .toolButton {
     margin-left: 1px !important;
-    margin-right: 1.6px !important;    
-    padding-top: 4px !important;;
-    padding-left: 8px !important;;
-    padding-right: 8px !important;;
-    padding-bottom: 10px !important;;
+    margin-right: 1.6px !important;
+    padding-top: 4px !important;
+    ;
+    padding-left: 8px !important;
+    ;
+    padding-right: 8px !important;
+    ;
+    padding-bottom: 10px !important;
+    ;
     border-radius: 4px !important;
     font-size: 12px !important;
-    border:none;
-    color:#2b2c2d !important;
+    border: none;
+    color: #2b2c2d !important;
   }
- 
+
 
   .toolSelect {
     font-size: 12px !important;
     padding: 2px 2px !important;
-    width: 70px !important;
-    height: 24px !important;
-   font-size: 10px !important;
+    width: 70px !important;   
+    font-size: 10px !important;
   }
-  .el-input{
+
+  .el-input {
     font-size: 12px !important;
     padding: 2px 2px !important;
     width: 65px !important;
@@ -163,24 +179,24 @@
     font-size: 10px !important;
   }
 
-/deep/ .el-input__inner {
-   border: 0px solid #ffffff !important;   
-    color:#2b2c2d !important;  
-    font-size: 12px !important;   
-    line-height: 24px !important;   
-    padding: 0 0px !important;   
+  /deep/ .el-input__inner {
+    border: 0px solid #ffffff !important;
+    color: #2b2c2d !important;
+    font-size: 12px !important;
+    line-height: 24px !important;
+    padding: 0 0px !important;
     width: 30px !important;
-   
-}
-  
-  .el-button--info {    
-     background-color: white !important; 
-     border-color:white !important; 
-}
+
+  }
+
+  .el-button--info {
+    background-color: white !important;
+    border-color: white !important;
+  }
+
+  .el-select-dropdown__item {
+    font-size: 10px !important;
+    padding: 0 10px;
+  }
  
-.el-select-dropdown__item{
-  font-size: 10px !important;   
-  padding: 0 10px;
-}
-  
 </style>

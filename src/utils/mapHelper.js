@@ -706,11 +706,10 @@ export let layerManager = {
   //     mapServie_Info：[]//信息
   //     mapService_Index:[]//图层位置
   //     mapService_Prj:'',//坐标系
-  //     mapService_Center:'',//服务的地图中心
-  //     mapService_extent:[],//服务的显示范围
+  //     mapService_Center:'',//服务的地图中心  
   //     mapService_params:{},//服务 附带的参数设置
   //     mapService_className:''//服务的分组
-  //    mapService_Server:''//服务的分组
+  //     mapService_Server:''//服务的分组
   //  }
   
 
@@ -873,7 +872,6 @@ export let layerManager = {
         name:mapServicesData. mapService_Name,       
         visible: true,
         zIndex:0
-
       })
      // var extent=arcGISLayers.getExtent();
       mapHelper.map.addLayer(arcGISLayers)
@@ -912,14 +910,14 @@ export let layerManager = {
   //[{sort_Order:,mapService_Name:}] arr
   //改变图层的位置
    ChangeLayersIndex(sortClass){
-    
+    //默认后加载的 会在 0图层
     const len=sortClass.length
     sortClass.forEach(function (value, i) {
       let layer=mapHelper.getLayerByName(value.mapService_Name);
       // console.log('改变位置前')
       // console.log(layer)
       // console.log(value.sort_Order)
-      layer.setZIndex(parseInt(value.sort_Order))
+      layer.setZIndex(parseInt( (len-value.sort_Order)))
       // console.log(layer)
       // console.log('改变位置后')
      
