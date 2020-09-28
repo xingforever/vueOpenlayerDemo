@@ -8,15 +8,13 @@
   },
   "dependencies": {
     "axios": "^0.20.0",
-    "element-ui": "^2.12.0",
-    "jquery": "^3.5.1",
+    "element-ui": "^2.12.0",   
     "less-loader": "^7.0.1",
     "ol": "^6.2.1",
     "proj4": "^2.6.2",
     "scss-loader": "0.0.1",
     "vue": "^2.6.11",
-    "vue-axios": "^2.1.5",
-    "vue-layer": "^1.2.1",
+    "vue-axios": "^2.1.5",  
     "vue-router": "^3.2.0",
     "vuedraggable": "^2.24.1",
     "vuex": "^3.4.0"

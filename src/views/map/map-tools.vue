@@ -13,7 +13,7 @@
       <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
       </el-option>
     </el-select>
-<mapLayermanager2 :panelShow.sync="layManagerShow"></mapLayermanager2> 
+<mapLayermanager2 :panelShow.sync="layManagerShow"></mapLayermanager2>
 
   </div>
 </template>
@@ -126,10 +126,7 @@
       },     
       showManagerlayer(){
       this.layManagerShow=true
-      }
-   
-      
-
+      }   
     }
   }
 </script>
@@ -143,26 +140,19 @@
     cursor: pointer;
     background-color: white;
     border-radius: 6px;
-
   }
-
   .toolButton {
     margin-left: 1px !important;
     margin-right: 1.6px !important;
-    padding-top: 4px !important;
-    ;
-    padding-left: 8px !important;
-    ;
+    padding-top: 4px !important;    
+    padding-left: 8px !important;    
     padding-right: 8px !important;
-    ;
-    padding-bottom: 10px !important;
-    ;
+    padding-bottom: 10px !important;    
     border-radius: 4px !important;
     font-size: 12px !important;
     border: none;
     color: #2b2c2d !important;
   }
-
 
   .toolSelect {
     font-size: 12px !important;
@@ -186,14 +176,11 @@
     line-height: 24px !important;
     padding: 0 0px !important;
     width: 30px !important;
-
   }
-
   .el-button--info {
     background-color: white !important;
     border-color: white !important;
   }
-
   .el-select-dropdown__item {
     font-size: 10px !important;
     padding: 0 10px;
