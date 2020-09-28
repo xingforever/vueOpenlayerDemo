@@ -20,8 +20,7 @@
 
 <script>
   import {
-    toolsHelper,
-    mapHelper,
+    toolsHelper,   
     layerManager
   } from '../../utils/mapHelper.js'
   import mapLayermanager2 from '@/views/map/map-layermanager2'
@@ -29,8 +28,7 @@
   export default {    
     name: 'map-tools',
     data() {
-      return {
-        dialogTableVisible: false,
+      return {       
         options: [{
           value: 'MeasurePoint',
           label: '测点'

@@ -26,14 +26,11 @@
     import {
         mapHelper,
         layerManager
-    } from '../../utils/mapHelper.js'
+    } from '@/utils/mapHelper.js'
     export default {
         name: 'map-layermanager2',
         data() {
             return {
-                isActive: false,
-                delIsShow: true,
-                delImgUrl: require('../../assets/img/layer/del.png'),
                 layerList: [],
             }
         },
@@ -46,8 +43,7 @@
             draggable
         },
         methods: {
-            datadragEnd(evt) {
-                //图层管理器不能移动
+            datadragEnd(evt) {                
                 evt.preventDefault();
                 // console.log('拖动前的索引 :' + evt.oldIndex)
                 // console.log('拖动后的索引 :' + evt.newIndex)
@@ -61,17 +57,16 @@
                     };
                 });
                 //排序后数组
-                console.log(newArr)
+                // console.log(newArr)
                 //Laymanager sort()
                 layerManager.ChangeLayersIndex(newArr)
-
             },
             initLayers() {
                 layerManager.InitLayerManager();
                 layerManager.AddMapService("GXKG")
                 layerManager.AddMapService("GXKG2")
-                //  layerManager.AddMapService("NKKG")
-                console.log(layerManager.mangerLayer)
+                //layerManager.AddMapService("NKKG")
+                //console.log(layerManager.mangerLayer)
                 this.layerList = layerManager.mangerLayer;
             },
             changeShow(event, name) {
@@ -90,7 +85,6 @@
             dragElement(document.getElementById(("layManager")));
         }
     }
-
     //图层控制-移动
     function dragElement(elmnt) {
         var pos1 = 0,
@@ -167,34 +161,24 @@
 
     .delete {
         width: 20px;
-
         height: 20px;
-
         border-radius: 60%;
-
         position: absolute;
-
         top: -5px;
-
         right: -5px;
-
     }
-
-
     .closelaybtn {
         height: 35px;
         width: 35px;
         background-image: url('../../assets/img/layer/close.png');
         padding: 0px 0px !important;
     }
-
     .openlaybtn {
         height: 35px;
         width: 35px;
         background-image: url('../../assets/img/layer/open.png');
         padding: 0px 0px !important;
     }
-
     .lays {
         height: 22px;
         margin-bottom: 2px;

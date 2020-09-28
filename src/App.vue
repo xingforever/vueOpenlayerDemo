@@ -1,12 +1,13 @@
 <template>
   <div id="app">
 
-    <olmap>   
+    <!-- <olmap>   
     <mapControls />
     </olmap>
     <mapChange />
     <mapTools />
-
+<mapLayersearch></mapLayersearch> -->
+<mapLocationsearch></mapLocationsearch>
   </div>
 </template>
 
@@ -16,7 +17,8 @@
   import mapControls from '@/views/map/map-controls'
   import olmap from '@/views/map/olmap'
   import mapLayermanager from '@/views/map/map-layermanager'
-
+ import mapLayersearch from '@/views/map/map-layersearch'
+ import mapLocationsearch from '@/views/map/map-locationsearch'
 
   // 测试
   export default {
@@ -25,9 +27,9 @@
       olmap,
       mapControls,
       mapChange,
-      mapTools,
-      mapLayermanager,
-      
+      mapTools,     
+      mapLayersearch,
+      mapLocationsearch
     }
   }
 </script>

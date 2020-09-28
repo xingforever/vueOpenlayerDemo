@@ -60,7 +60,7 @@ import {Image as ImageLayer} from 'ol/layer';
 import {bbox as bboxStrategy} from 'ol/loadingstrategy';
 import EsriJSON from 'ol/format/EsriJSON';
 import axiosHelper from '@/router/axiosHelper'
-import { map } from "core-js/fn/array";
+
 
 const mapSrc = mapconfig.mapSrc
 
@@ -178,7 +178,7 @@ const olControls = {
 }
 //--------------------------地图Helper --------------------------------
 export let mapHelper = {
-  map: null,
+  olmap: null,
   proj4490: null,
   //初始化地图对象
   initMap() {
@@ -186,7 +186,7 @@ export let mapHelper = {
     mapHelper.definedProjection()
 
     //地图对象   
-    mapHelper.map = new Map({
+    mapHelper.olmap = new Map({
       target: 'map',
       layers: [
         baseLayers.tdtVec,
@@ -234,14 +234,14 @@ export let mapHelper = {
       return;
     }
     layer.forEach(item => {
-      mapHelper.map.removeLayer(item)
+      mapHelper.olmap.removeLayer(item)
     })
   },
   // 清除所有覆盖图层
   removeAllOverlay() {
-    let layers = mapHelper.map.getOverlays().getArray();
+    let layers = mapHelper.olmap.getOverlays().getArray();
     layers.forEach(item => {
-      mapHelper.map.removeOverlay(item);
+      mapHelper.olmap.removeOverlay(item);
     });
   },
   // 根据图层名获取图层
@@ -264,11 +264,11 @@ export let mapHelper = {
   },
   // 获取所有图层
   getAllLayers() {
-    let layers = mapHelper.map.getLayers()
+    let layers = mapHelper.olmap.getLayers()
     return layers
   },
   getAllLayersArray() {
-    let layers = mapHelper.map.getLayers().getArray()
+    let layers = mapHelper.olmap.getLayers().getArray()
     return layers
   },
   //创建矢量图层
@@ -323,12 +323,12 @@ export let mapHelper = {
   },
   //设置地图可见范围
   ZoonAtExtent(extent){
-    let view =mapHelper.map.getView();
-    view.fit(extent, mapHelper.map.getSize());
+    let view =mapHelper.olmap.getView();
+    view.fit(extent, mapHelper.olmap.getSize());
   },
   //设置地图可见中心
   ZoonAtCenter(center){
-    let view =mapHelper.map.getView();
+    let view =mapHelper.olmap.getView();
     view.setCenter(center);
    }
 }
@@ -406,7 +406,7 @@ export let toolsHelper = {
       _common: "common_Layer", //展示层
       init: function () {
         this.common_Layer = mapHelper.createVecLayer(this._common)
-        mapHelper.map.addLayer(this.common_Layer);
+        mapHelper.olmap.addLayer(this.common_Layer);
       },
       clear: function () {
         this.common_Layer.getSource().clear();
@@ -449,7 +449,7 @@ export let toolsHelper = {
     toolsHelper.tempLayers.common_Layer.getSource().addFeature(feature);
     toolsHelper.tempLayers.common_Layer.setVisible(true)
     //设置视图中心
-    mapHelper.map.getView().setCenter([parseFloat(lon), parseFloat(lat)])
+    mapHelper.olmap.getView().setCenter([parseFloat(lon), parseFloat(lat)])
     return 'ok'
   },
   //添加绘图
@@ -459,7 +459,7 @@ export let toolsHelper = {
   //标绘方法 --layer -标绘
   addPoltInteractionFun(type) {
     if (toolsHelper.plottingOption.draw != null) {
-      mapHelper.map.removeInteraction(toolsHelper.plottingOption.draw); // 防止多次点击添加多个图层
+      mapHelper.olmap.removeInteraction(toolsHelper.plottingOption.draw); // 防止多次点击添加多个图层
     }
     let source = new VectorSource();
     let style = null;
@@ -483,7 +483,7 @@ export let toolsHelper = {
       geometryFunction: geometryFunction
     });
     //添加Interaction
-    mapHelper.map.addInteraction(toolsHelper.plottingOption.draw);
+    mapHelper.olmap.addInteraction(toolsHelper.plottingOption.draw);
     //监听绘制开始
     toolsHelper.plottingOption.draw.on("drawstart", evt => {
       toolsHelper.plottingOption.sketch = evt.feature;
@@ -493,11 +493,11 @@ export let toolsHelper = {
         zIndex: 9,
         name: "标绘"
       });
-      mapHelper.map.addLayer(plottingLayer);
+      mapHelper.olmap.addLayer(plottingLayer);
 
     });
     toolsHelper.plottingOption.draw.on("drawend", evt => {
-      mapHelper.map.removeInteraction(toolsHelper.plottingOption.draw);
+      mapHelper.olmap.removeInteraction(toolsHelper.plottingOption.draw);
     });
   },
   // 添加测量标注
@@ -518,7 +518,7 @@ export let toolsHelper = {
       offset: [0, -15],
       positioning: "bottom-center"
     });
-    mapHelper.map.addOverlay(toolsHelper.measureOption.measureTooltip);
+    mapHelper.olmap.addOverlay(toolsHelper.measureOption.measureTooltip);
   },
   //添加测量标注
   createHelpTooltip() {
@@ -541,7 +541,7 @@ export let toolsHelper = {
   },
   //格式化距离
   formatLength(line) {
-    let sourceProj = mapHelper.map.getView().getProjection(); // 获取投影坐标系
+    let sourceProj = mapHelper.olmap.getView().getProjection(); // 获取投影坐标系
     let length = getLength(line, {
       projection: sourceProj
     });
@@ -555,7 +555,7 @@ export let toolsHelper = {
   },
   //格式化面积
   formatArea(polygon) {
-    let sourceProj = mapHelper.map.getView().getProjection(); // 获取投影坐标系
+    let sourceProj = mapHelper.olmap.getView().getProjection(); // 获取投影坐标系
     let area = getArea(polygon, {
       projection: sourceProj
     });
@@ -591,8 +591,8 @@ export let toolsHelper = {
   //空间测量
   spaceMeasure(measureType) {
 
-    mapHelper.map.on("pointermove", toolsHelper.pointerMoveHandler);
-    mapHelper.map.getViewport().addEventListener("mouseout", () => {
+    mapHelper.olmap.on("pointermove", toolsHelper.pointerMoveHandler);
+    mapHelper.olmap.getViewport().addEventListener("mouseout", () => {
       toolsHelper.measureOption.helpTooltipElement.classList.add("hidden");
     });
     toolsHelper.addInteractionFun(measureType);
@@ -601,7 +601,7 @@ export let toolsHelper = {
   addInteractionFun(measureType) {
 
     if (toolsHelper.measureOption.draw != null) {
-      mapHelper.map.removeInteraction(toolsHelper.measureOption.draw); // 防止多次点击添加多个图层
+      mapHelper.olmap.removeInteraction(toolsHelper.measureOption.draw); // 防止多次点击添加多个图层
     }
     let source = new VectorSource();
     // 绘制时的样式
@@ -610,7 +610,7 @@ export let toolsHelper = {
       type: measureType,
       style: toolsHelper.measureStyle
     });
-    mapHelper.map.addInteraction(toolsHelper.measureOption.draw);
+    mapHelper.olmap.addInteraction(toolsHelper.measureOption.draw);
     toolsHelper.measureOption.draw.on("drawstart", evt => {
       toolsHelper.measureOption.sketch = evt.feature;
       let type = toolsHelper.measureOption.sketch.getGeometry();
@@ -657,8 +657,8 @@ export let toolsHelper = {
       toolsHelper.measureOption.sketch = null;
       toolsHelper.measureOption.measureTooltipElement = null;
       toolsHelper.createMeasureTooltip();
-      mapHelper.map.un("pointermove", toolsHelper.pointerMoveHandler);
-      mapHelper.map.removeInteraction(toolsHelper.measureOption.draw);
+      mapHelper.olmap.un("pointermove", toolsHelper.pointerMoveHandler);
+      mapHelper.olmap.removeInteraction(toolsHelper.measureOption.draw);
       toolsHelper.measureOption.helpTooltipElement.classList.add("hidden");
     });
     // 将画好的 VectorLayer 图层添加到 map 中
@@ -668,7 +668,7 @@ export let toolsHelper = {
       zIndex: 9,
       name: "空间测量"
     });
-    mapHelper.map.addLayer(measureLayer);
+    mapHelper.olmap.addLayer(measureLayer);
     toolsHelper.createMeasureTooltip();
     toolsHelper.createHelpTooltip();
     // 删除测量标注
@@ -688,8 +688,8 @@ export let toolsHelper = {
     toolsHelper.tempLayers.clear();
     mapHelper.removeLayerByName('标绘')
     mapHelper.removeLayerByName('空间测量')
-    mapHelper.map.un("pointermove", toolsHelper.pointerMoveHandler);
-    mapHelper.map.removeInteraction(toolsHelper.plottingOption.draw);
+    mapHelper.olmap.un("pointermove", toolsHelper.pointerMoveHandler);
+    mapHelper.olmap.removeInteraction(toolsHelper.plottingOption.draw);
     mapHelper.removeAllOverlay()
   }
 
@@ -874,7 +874,7 @@ export let layerManager = {
         zIndex:0
       })
      // var extent=arcGISLayers.getExtent();
-      mapHelper.map.addLayer(arcGISLayers)
+      mapHelper.olmap.addLayer(arcGISLayers)
     //  console.log(extent)
      // mapHelper.ZoonAtExtent(extent)
      //console.log(mapHelper.getAllLayers())
@@ -893,7 +893,7 @@ export let layerManager = {
         }),
         visible: true,      
       })    
-      mapHelper.map.addLayer(wmtsLayer)
+      mapHelper.olmap.addLayer(wmtsLayer)
     
       return "success" ;
    }
@@ -991,7 +991,7 @@ export let layerManager = {
     //   zIndex: 0,
 
     // })
-    mapHelper.map.addLayer(wmsLayer)
+    mapHelper.olmap.addLayer(wmsLayer)
 
   },
   testAddWMS() {
@@ -1006,7 +1006,7 @@ export let layerManager = {
       opacity: 0.8,
       visible: true
     })
-    mapHelper.map.addLayer(ArcGISLayers)
+    mapHelper.olmap.addLayer(ArcGISLayers)
   },
   testAddWMTS2(){  
 //url,name,center,projection,remark,index
@@ -1024,7 +1024,7 @@ export let layerManager = {
 
     })
     
-    mapHelper.map.addLayer(wmsLayer)
+    mapHelper.olmap.addLayer(wmsLayer)
 
   },
   testAddWFS(){  
@@ -1042,7 +1042,7 @@ export let layerManager = {
       source: vectorSource ,         
     }); 
   
-    mapHelper.map.addLayer(vector)  
+    mapHelper.olmap.addLayer(vector)  
    
   },
   testAddWFSQuery(){  
@@ -1074,10 +1074,10 @@ export let layerManager = {
       })
     }); 
   
-    mapHelper.map.addLayer(vector)  
+    mapHelper.olmap.addLayer(vector)  
     var extent=vector.getExtent()
-    var view = mapHelper.map.getView();
-    view.fit(extent, map.getSize());
+    var view = mapHelper.olmap.getView();
+    view.fit(extent, mapHelper.olmap.getSize());
   },
   testAddWFSQuery2(){  
     // let url="http://192.168.1.112:6080/arcgis/services/test/WFSService/MapServer/WFSServer?request=GetCapabilities&service=WFS"
@@ -1099,10 +1099,10 @@ export let layerManager = {
        })
      }); 
    
-     mapHelper.map.addLayer(vector)  
+     mapHelper.olmap.addLayer(vector)  
      var extent=vector.getExtent()
-     var view = mapHelper.map.getView();
-     view.fit(extent, map.getSize());
+     var view = mapHelper.olmap.getView();
+     view.fit(extent, mapHelper.olmap.getSize());
    },
   //添加动态的WMS 服务
   addTileWMS(url, prj, className, index) {
