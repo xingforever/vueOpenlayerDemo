@@ -6,9 +6,6 @@ import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css'
 import VueAxios from 'vue-axios'
 import Axios from 'axios'
-import './utils/dialog'
-
-
 
 Vue.config.productionTip = false
 

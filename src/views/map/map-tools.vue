@@ -3,7 +3,30 @@
   <div class="mapTools">
     <el-button type="info" icon="el-icon-picture" class="toolButton" plain>规划专题图</el-button>
     <el-button type="info" icon="el-icon-folder-add" class="toolButton"  plain>加载</el-button>
-    <el-button type="info" icon="el-icon-search" class="toolButton" plain >查询</el-button>
+
+<el-popover placement="bottom" width="300"  trigger="click"  >
+            <div class="countrydiv">
+        <div class="areas">
+            <span>市区：</span>            
+                <el-link v-for="area in areas" :key="area"  type="primary" > 
+                    {{area}}
+                    </el-link>  
+        </div>
+        <div class="countrycontent">          
+            <div  class="countrytitle">
+            <span> 县：</span>
+           </div>
+         <div class='countys'>          
+            <el-link v-for="country in countrys" :key="country">{{country}}</el-link>
+        </div>
+        </div>        
+            </div>     
+            <el-button type="info" icon="el-icon-search" class="toolButton" slot="reference" plain >查询</el-button>   
+          
+        </el-popover>
+
+
+
     <el-button type="info" icon="el-icon-map-location" class="toolButton" @click="location" plain>定位</el-button>
     <el-button type="info" icon="el-icon-delete" class="toolButton" @click="clearAll" plain>清除</el-button>
     <el-button type="info" icon="el-icon-s-order" class="toolButton" @click="showManagerlayer" plain>图层管理
@@ -52,6 +75,8 @@
           label: '绘制面'
         }],
         value: '工具',
+         areas: ['章贡区', '南康区', '赣县区', '瑞金市', '龙南市'],
+        countrys: ['信丰县', '大余县', '上犹县', '崇义县', '安远县', '定南县', '全南县', '宁都县', '于都县', '兴国县', '会昌县', '寻乌县', '石城县'],
         layManagerShow:false,        
       }
     },
@@ -183,5 +208,34 @@
     font-size: 10px !important;
     padding: 0 10px;
   }
+  .countrydiv {
+        width: 300px;
+        height: 100px;
+        float: left;
+    }
+    .areas {
+        height: 30px;
+        
+    }
+    .countrycontent{
+        float: left;
+        width: 300px;
+    }
+    .countys {
+        height: 80px;
+     width: 230px;
+        float:left;
+       
+    }
+    .el-link {
+        margin-left: 4px;
+    }
+    .countrytitle{
+        
+        width: 40px;
+        float:left;
+   
+    }
+   
  
 </style>

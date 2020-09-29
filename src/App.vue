@@ -1,13 +1,13 @@
 <template>
   <div id="app">
 
-    <!-- <olmap>   
+    <olmap>   
     <mapControls />
     </olmap>
     <mapChange />
     <mapTools />
-<mapLayersearch></mapLayersearch> -->
-<mapLocationsearch></mapLocationsearch>
+<mapLayersearch></mapLayersearch>
+<!-- <mapLocationsearch></mapLocationsearch> -->
   </div>
 </template>
 

@@ -1,7 +1,7 @@
 <template>
     <div>
         <div id="layManager" v-show="panelShow">
-            <img src="../../assets/img/toolIcons/del.png" class="delete" @click="close" />
+            <img src="/assets/img/toolIcons/del.png" class="delete" @click="close" />
             <div id="layManagerheader">图层管理</div>
             <hr>
             <draggable id="layersInfo" v-model="layerList" @update="datadragEnd" :options="{animation:200}"

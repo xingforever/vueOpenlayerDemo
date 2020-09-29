@@ -399,11 +399,22 @@ export let toolsHelper = {
       })
     })
   }),
+  //导航定位 
+ navigationStyle:new Style({
+  stroke: new Stroke({
+    color: '#1171d6',
+    width: 2,   
+    lineDash: [1, 2, 3, 4, 5, 6],
+}),
+
+}),
+
   //初始化tool
   initTools() {
     toolsHelper.tempLayers = {
       common_Layer: null,
       _common: "common_Layer", //展示层
+     
       init: function () {
         this.common_Layer = mapHelper.createVecLayer(this._common)
         mapHelper.olmap.addLayer(this.common_Layer);
@@ -413,6 +424,24 @@ export let toolsHelper = {
       }
     }
     toolsHelper.tempLayers.init()
+  },
+
+  //
+  navigation(){
+  //   let geojsonObject=axiosHelper.requestByGet('../assets/data/ganzhou.json')
+  //   console.log(geojsonObject)
+    
+  //   let vectorSource = new VectorSource({
+  //     features: (new GeoJSON()).readFeatures(geojsonObject)
+  //   });
+   
+  //   console.log(vectorSource)
+  //   let navigationLayer = new VectorLayer({
+  //     source: vectorSource,
+  //     style:toolsHelper.navigationStyle
+  //   });
+  //   console.log(navigationLayer)
+  // mapHelper.olmap.addLayer(navigationLayer)
   },
   //定位
   setLocation(locate) {
