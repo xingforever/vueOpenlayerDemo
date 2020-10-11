@@ -60,6 +60,7 @@ import {Image as ImageLayer} from 'ol/layer';
 import {bbox as bboxStrategy} from 'ol/loadingstrategy';
 import EsriJSON from 'ol/format/EsriJSON';
 import axiosHelper from '@/router/axiosHelper'
+import { map } from "core-js/fn/array";
 
 
 const mapSrc = mapconfig.mapSrc
@@ -215,7 +216,11 @@ export let mapHelper = {
     })
     //工具初始化
     toolsHelper.initTools();
-
+    //绑定事件
+    mapHelper.olmap.on('singleclick',function(evt){
+      //数据搜索
+      dataSearchHelper.mapClick(evt);
+    })
   },
   //定义坐标系
   definedProjection() {
@@ -1141,8 +1146,15 @@ export let layerManager = {
 
 }
 
-//  //--------------------------投影切换-----------------------------------
-// export let  transformManager={
+//  //--------------------------属性查询-----------------------------------
+ export let  dataSearchHelper={
+   // 是否开启数据查询
+    isOpenSearch:false,
+    mapClick(evt){
+      //第一步获取坐标
+      // 遍历 目前加载服务的 范围
+      // 如果在内部 在进去对应的 wfs 服务查找要素
+      alert("点击开始了")
+    }
 
-
-// }
+ }

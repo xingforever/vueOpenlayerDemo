@@ -8,6 +8,7 @@
     <mapTools />
 <mapLayersearch></mapLayersearch>
 <!-- <mapLocationsearch></mapLocationsearch> -->
+<!-- <test></test> -->
   </div>
 </template>
 
@@ -19,7 +20,7 @@
   import mapLayermanager from '@/views/map/map-layermanager'
  import mapLayersearch from '@/views/map/map-layersearch'
  import mapLocationsearch from '@/views/map/map-locationsearch'
-
+  import test from '@/views/map/test'
   // 测试
   export default {
     name: 'app',
@@ -29,7 +30,8 @@
       mapChange,
       mapTools,     
       mapLayersearch,
-      mapLocationsearch
+      mapLocationsearch,
+      test
     }
   }
 </script>

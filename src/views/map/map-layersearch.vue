@@ -2,17 +2,25 @@
     <div>
         <div class="box-search">
             <div class="bar-search">
-                <el-button size="small" round class="btn_openlayers" @click="drawer = true">图层</el-button>
+                <el-button size="small" round class="btn_openlayers" @click="isShowLayManager = true">图层</el-button>
                 <el-input class="txt_search" placeholder="请输入内容" v-model="input3">
                     <el-button size="mini" slot="append" type="primary" icon="el-icon-search">搜索</el-button>
                 </el-input>
+
             </div>
         </div>
-        <el-drawer title="图层服务" :visible.sync="drawer" :direction="direction" :modal="false">
-            <el-tree :data="data" show-checkbox node-key="id" :default-expanded-keys="[2, 3]"
-                :default-checked-keys="[5]" :props="defaultProps">
+        <div class="layersearch-resource" v-show="isShowLayManager">
+            <div class="layersearch-head">
+                <span >图层控制</span>                
+                <div style="float: right;padding-right: 14px;">
+                    <img  src="/img/mapindex/del.png" class="delete" @click="isShowLayManager=false">
+                   
+                </div>
+            </div>
+            <el-tree :data="data" show-checkbox node-key="id" :default-expanded-keys="[2, 3]" :props="defaultProps"
+                @check='(click, checked)=>{checkNode(click, checked)}' ref='tree'>
             </el-tree>
-        </el-drawer>
+        </div>
     </div>
 
 
@@ -67,11 +75,30 @@
                 defaultProps: {
                     children: 'children',
                     label: 'label'
-                }
+                },
+                isShowLayManager:false
+
             };
 
-        }
+        },
+        methods: {
+            checkNode(node, ischeck) {
 
+                // console.log(this.$refs.tree)
+                //  let ckey = this.$refs.tree.getCurrentKey()
+                //  let cnode = this.$refs.tree.getCurrentNode()
+                //  let chknodes = this.$refs.tree.getCheckedNodes()
+                // // console.log(nodes)
+                //  console.log(ckey)
+                //  console.log(cnode)
+                // console.log(chknodes)
+                console.log(node)
+                console.log(ischeck)
+            },
+            hideLayManager(){
+                this.isShowLayManager=false
+            }
+        }
     }
 </script>
 
@@ -108,5 +135,22 @@
         line-height: 26px;
         margin-top: 6px;
         font-size: 14px;
+    }
+
+    .layersearch-resource {
+        position: absolute;
+        top: 64px;
+        bottom: 38px;
+        width: 380px;
+        padding: 10px;
+        box-sizing: border-box;
+        z-index: 2;
+        background: #fff;
+        box-shadow: 0 0 20px rgba(0, 0, 0, .3);
+        left: 0px;
+        display: block;
+    }
+    .layersearch-head{
+        margin-bottom: 10px;
     }
 </style>
