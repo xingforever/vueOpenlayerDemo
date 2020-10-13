@@ -64,7 +64,8 @@
             initLayers() {
                 layerManager.InitLayerManager();
                 layerManager.AddMapService("GXKG")
-                layerManager.AddMapService("GXKG2")
+                // layerManager.AddMapService("GXKG2")
+                //  layerManager.AddMapService("GXKG2")
                 //layerManager.AddMapService("NKKG")
                 //console.log(layerManager.mangerLayer)
                 this.layerList = layerManager.mangerLayer;

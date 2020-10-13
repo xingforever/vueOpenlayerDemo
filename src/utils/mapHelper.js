@@ -44,25 +44,41 @@ import {
 } from "ol/sphere.js";
 import XYZ from 'ol/source/XYZ'
 import TileLayer from 'ol/layer/Tile'
-import TileWMS from "ol/source/TileWMS"
 import {
   register
 } from 'ol/proj/proj4';
 import proj4 from 'proj4';
 import Projection from 'ol/proj/Projection';
+import {
+  transform 
+} from "ol/proj";
 import TileGrid from 'ol/tilegrid/TileGrid';
 import TileArcGISRest from 'ol/source/TileArcGISRest';
 import WMTS from 'ol/source/WMTS';
 import WMTSTileGrid from 'ol/tilegrid/WMTS';
 import GeoJSON from 'ol/format/GeoJSON';
-import {ImageArcGISRest, OSM} from 'ol/source';
-import {Image as ImageLayer} from 'ol/layer';
-import {bbox as bboxStrategy} from 'ol/loadingstrategy';
+import Overlay from 'ol/Overlay';
+
+
+
+import {
+  ImageArcGISRest,
+  OSM
+} from 'ol/source';
+import {
+  Image as ImageLayer
+} from 'ol/layer';
+import {
+  bbox as bboxStrategy
+} from 'ol/loadingstrategy';
 import EsriJSON from 'ol/format/EsriJSON';
 import axiosHelper from '@/router/axiosHelper'
-import { map } from "core-js/fn/array";
+import {
+  map
+} from "core-js/fn/array";
+import { getMetadata } from "core-js/fn/reflect";
 
-
+//展示所有代码 ctrl+k ctrl +j  ,折叠所有代码  ctrl+k ctrl +0   打开终端 ctrl+j
 const mapSrc = mapconfig.mapSrc
 
 //--------------------------底图 --------------------------------------
@@ -180,12 +196,11 @@ const olControls = {
 //--------------------------地图Helper --------------------------------
 export let mapHelper = {
   olmap: null,
-  proj4490: null,
+  proj4526: null,
   //初始化地图对象
   initMap() {
     //定义坐标系 -CSC2000 
     mapHelper.definedProjection()
-
     //地图对象   
     mapHelper.olmap = new Map({
       target: 'map',
@@ -216,21 +231,29 @@ export let mapHelper = {
     })
     //工具初始化
     toolsHelper.initTools();
+  
     //绑定事件
-    mapHelper.olmap.on('singleclick',function(evt){
+    mapHelper.olmap.on('singleclick', function (evt) {
       //数据搜索
       dataSearchHelper.mapClick(evt);
     })
   },
   //定义坐标系
   definedProjection() {
-    proj4.defs("EPSG:4490", "+proj=longlat +ellps=GRS80 +no_defs");
+    proj4.defs("EPSG:4526","+proj=tmerc +lat_0=0 +lon_0=114 +k=1 +x_0=38500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
     register(proj4);
     var projection = new Projection({
-      code: 'EPSG:4490',
+      code: 'EPSG:4526',
       extent: [107.66615218883604, 16.780085439091835, 113.39113536886373, 20.948901121306612]
     });
-    mapHelper.proj4490 = projection;
+    mapHelper.proj4526 = projection;
+  },
+  //坐标转换
+  LonLatTransformToXY(coordinate) {
+    return transform(coordinate, 'EPSG:4326',mapHelper.proj4526 )
+  },
+  XYTransformToLonLat(coordinate) {
+    return transform(coordinate, mapHelper.proj4526, 'EPSG:4326')
   },
   //通过名字移除图层
   removeLayerByName(name) {
@@ -262,7 +285,7 @@ export let mapHelper = {
     let layer = allLayers.filter(item => {
       return item.get('name') === name
     })
-    if(layer.length>0){
+    if (layer.length > 0) {
       return layer[0]
     }
     return;
@@ -327,15 +350,15 @@ export let mapHelper = {
     }
   },
   //设置地图可见范围
-  ZoonAtExtent(extent){
-    let view =mapHelper.olmap.getView();
+  ZoonAtExtent(extent) {
+    let view = mapHelper.olmap.getView();
     view.fit(extent, mapHelper.olmap.getSize());
   },
   //设置地图可见中心
-  ZoonAtCenter(center){
-    let view =mapHelper.olmap.getView();
+  ZoonAtCenter(center) {
+    let view = mapHelper.olmap.getView();
     view.setCenter(center);
-   }
+  }
 }
 //--------------------------地图工具Helper-----------------------------
 export let toolsHelper = {
@@ -405,21 +428,21 @@ export let toolsHelper = {
     })
   }),
   //导航定位 
- navigationStyle:new Style({
-  stroke: new Stroke({
-    color: '#1171d6',
-    width: 2,   
-    lineDash: [1, 2, 3, 4, 5, 6],
-}),
+  navigationStyle: new Style({
+    stroke: new Stroke({
+      color: '#1171d6',
+      width: 2,
+      lineDash: [1, 2, 3, 4, 5, 6],
+    }),
 
-}),
+  }),
 
   //初始化tool
   initTools() {
     toolsHelper.tempLayers = {
       common_Layer: null,
       _common: "common_Layer", //展示层
-     
+
       init: function () {
         this.common_Layer = mapHelper.createVecLayer(this._common)
         mapHelper.olmap.addLayer(this.common_Layer);
@@ -429,24 +452,6 @@ export let toolsHelper = {
       }
     }
     toolsHelper.tempLayers.init()
-  },
-
-  //
-  navigation(){
-  //   let geojsonObject=axiosHelper.requestByGet('../assets/data/ganzhou.json')
-  //   console.log(geojsonObject)
-    
-  //   let vectorSource = new VectorSource({
-  //     features: (new GeoJSON()).readFeatures(geojsonObject)
-  //   });
-   
-  //   console.log(vectorSource)
-  //   let navigationLayer = new VectorLayer({
-  //     source: vectorSource,
-  //     style:toolsHelper.navigationStyle
-  //   });
-  //   console.log(navigationLayer)
-  // mapHelper.olmap.addLayer(navigationLayer)
   },
   //定位
   setLocation(locate) {
@@ -489,6 +494,7 @@ export let toolsHelper = {
   //添加绘图
   addPoltInteraction(type) {
     toolsHelper.addPoltInteractionFun(type)
+
   },
   //标绘方法 --layer -标绘
   addPoltInteractionFun(type) {
@@ -745,7 +751,7 @@ export let layerManager = {
   //     mapService_className:''//服务的分组
   //     mapService_Server:''//服务的分组
   //  }
-  
+
 
 
   //添加自定义本地服务
@@ -753,80 +759,77 @@ export let layerManager = {
   allLayers: [], //所有图层列表
   layerGroups: [], //服务组名称列表-tree
   mangerLayer: [], //图层管理器有的服务列表
-  mapServicesDatas:[], //地图服务信息
-  InitLayerManager(){
+  mapServicesDatas: [], //地图服务信息
+  InitLayerManager() {
     //1 发送请求 -- 获取数据库存储服务数据--
     //2 获取数据 ---标准化---成为 mapServicesData
     //3
-    layerManager.mapServicesDatas=[
+    layerManager.mapServicesDatas = [{
+        mapService_Name: 'NKKG', //名称
+        mapServie_Alias: '南康控规', //别名
+        mapServie_Type: 'WMS', //类型
+        mapService_Url: 'http://192.168.1.112:6080/arcgis/rest/services/test/NKKG/MapServer', // 数组
+        mapServie_Info: '南康控规', //信息
+        mapService_Index: 0, //图层位置
+        mapService_Prj: '4327', //坐标系
+        mapService_Center: '', //服务的地图中心
+        mapService_extent: [], //服务的显示范围
+        mapService_params: {}, //服务 附带的参数设置
+        mapService_className: '控规', //服务的分组
+        mapService_Server: 'ArcGIS Server',
+        mapService_IsShow: true //服务是否可见
+
+
+      },
       {
-      mapService_Name:'NKKG',//名称
-      mapServie_Alias:'南康控规',//别名
-      mapServie_Type:'WMS',//类型
-      mapService_Url:'http://192.168.1.112:6080/arcgis/rest/services/test/NKKG/MapServer',// 数组
-      mapServie_Info:'南康控规',//信息
-      mapService_Index:0,//图层位置
-      mapService_Prj:'4327',//坐标系
-      mapService_Center:'',//服务的地图中心
-      mapService_extent:[],//服务的显示范围
-      mapService_params:{},//服务 附带的参数设置
-      mapService_className:'控规',//服务的分组
-      mapService_Server:'ArcGIS Server',
-      mapService_IsShow:true//服务的分组
+        mapService_Name: 'KGDL', //名称
+        mapServie_Alias: '控规道路', //别名
+        mapServie_Type: 'WMS', //类型
+        mapService_Url: 'http://192.168.1.112:6080/arcgis/rest/services/test/KGDL/MapServer', // 数组
+        mapServie_Info: '控规道路', //信息
+        mapService_Index: 0, //图层位置
+        mapService_Prj: '4327', //坐标系
+        mapService_Center: '', //服务的地图中心
+        mapService_extent: [], //服务的显示范围
+        mapService_params: {}, //服务 附带的参数设置
+        mapService_className: '控规', //服务的分组
+        mapService_Server: 'ArcGIS Server', //服务的分组
+        mapService_IsShow: true
 
-
-    },   
+      },
       {
-      mapService_Name:'KGDL',//名称
-      mapServie_Alias:'控规道路',//别名
-      mapServie_Type:'WMS',//类型
-      mapService_Url:'http://192.168.1.112:6080/arcgis/rest/services/test/KGDL/MapServer',// 数组
-      mapServie_Info:'控规道路',//信息
-      mapService_Index:0,//图层位置
-      mapService_Prj:'4327',//坐标系
-      mapService_Center:'',//服务的地图中心
-      mapService_extent:[],//服务的显示范围
-      mapService_params:{},//服务 附带的参数设置
-      mapService_className:'控规',//服务的分组
-      mapService_Server:'ArcGIS Server',//服务的分组
-      mapService_IsShow:true
+        mapService_Name: 'GXKG2', //名称
+        mapServie_Alias: '赣县控规2', //别名
+        mapServie_Type: 'WMS', //类型
+        mapService_Url: 'http://192.168.1.112:6080/arcgis/rest/services/test/GXKG2/MapServer', // 数组
+        mapServie_Info: '赣县控规2', //信息
+        mapService_Index: 0, //图层位置
+        mapService_Prj: '4327', //坐标系
+        mapService_Center: '', //服务的地图中心
+        mapService_extent: [], //服务的显示范围
+        mapService_params: {}, //服务 附带的参数设置
+        mapService_className: '控规', //服务的分组
+        mapService_Server: 'ArcGIS Server', //服务的分组
+        mapService_IsShow: true
 
-    },
-    {
-      mapService_Name:'GXKG2',//名称
-      mapServie_Alias:'赣县控规2',//别名
-      mapServie_Type:'WMS',//类型
-      mapService_Url:'http://192.168.1.112:6080/arcgis/rest/services/test/GXKG2/MapServer',// 数组
-      mapServie_Info:'赣县控规2',//信息
-      mapService_Index:0,//图层位置
-      mapService_Prj:'4327',//坐标系
-      mapService_Center:'',//服务的地图中心
-      mapService_extent:[],//服务的显示范围
-      mapService_params:{},//服务 附带的参数设置
-      mapService_className:'控规',//服务的分组
-      mapService_Server:'ArcGIS Server',//服务的分组
-      mapService_IsShow:true
+      },
+      {
+        mapService_Name: 'GXKG', //名称
+        mapServie_Alias: '赣县控规', //别名
+        mapServie_Type: 'WMS', //类型
+        mapService_Url: 'http://192.168.1.112:6080/arcgis/rest/services/test/GXKG/MapServer', // 数组
+        mapServie_Info: '赣县控规', //信息
+        mapService_Index: 0, //图层位置
+        mapService_Prj: '4327', //坐标系
+        mapService_Center: '', //服务的地图中心
+        mapService_extent: [], //服务的显示范围
+        mapService_params: {}, //服务 附带的参数设置
+        mapService_className: '控规', //服务的分组
+        mapService_Server: 'ArcGIS Server', //服务的分组
+        mapService_IsShow: true
+      }
 
-    },
-    {
-      mapService_Name:'GXKG',//名称
-      mapServie_Alias:'赣县控规',//别名
-      mapServie_Type:'WMS',//类型
-      mapService_Url:'http://192.168.1.112:6080/arcgis/rest/services/test/GXKG/MapServer',// 数组
-      mapServie_Info:'赣县控规',//信息
-      mapService_Index:0,//图层位置
-      mapService_Prj:'4327',//坐标系
-      mapService_Center:'',//服务的地图中心
-      mapService_extent:[],//服务的显示范围
-      mapService_params:{},//服务 附带的参数设置
-      mapService_className:'控规',//服务的分组
-      mapService_Server:'ArcGIS Server',//服务的分组
-      mapService_IsShow:true
-    }
-  
     ]
-
-
 
   },
   //数据中是否存在该服务---------- 暂时不使用
@@ -841,101 +844,115 @@ export let layerManager = {
   },
 
   //目前已经加载的服务中是否存在某服务
-   IsEXistLoadedMapService(name) {
-     layerManager.mangerLayer.forEach(function (value, i) {
-       //查询是否存在名称一样的
-       if (value.mapService_Name == name) {
-         return true;
-       }
-     })
-     return false;
-   },
-
-   AddMapService(name) {
-     layerManager.mapServicesDatas.forEach(function (value, i) {
-       if (value.mapServie_Type == 'WMS') {
-         //添加ArcGIS Server 的WMS服务
-         if (value.mapService_Server == "ArcGIS Server") {
-           //名字匹配           
-           if (name == value.mapService_Name) {
-             //检测是否已经存在图层管理中
-             if (layerManager.IsEXistLoadedMapService(name)) {
-               return "已经加载了该服务，无法再次添加！"
-             } else {
-               //添加图层 -成功返回success 失败返回错误原因
-               const res = layerManager.AddArcGISWMSService(value)
-               if (res == "success") {
-                 //管理图层添加信息'                               
-                 layerManager.mangerLayer.unshift(value)
-                 return "success"
-               } else {
-                 return res
-               }
-             }
-           }
-         }
-       } else if (value.mapServie_Type == 'WMTS') {
-         if (value.mapService_Server == "ArcGIS Server") {
-           if (name == value.mapService_Name) {
-             if (layerManager.IsEXistLoadedMapService(name)) {
-               return "已经加载了该图层"
-             } else {
-               //添加图层 -成功返回success 失败返回错误原因
-               const res = layerManager.AddArcGISWMTSService(value)
-               if (res == "success") {
-                 //管理图层添加信息'                               
-                 layerManager.mangerLayer.push(value)
-               } else {
-                 return res
-               }
-             }
-           }
-         }
-       } else if (value.mapServie_Type == 'WFS') {
-
-       }
-     })
-   },
-//加载ArcGIS 发布的动态地图服务
-   AddArcGISWMSService(mapServicesData){
-    try {       
-      var arcGISLayers = new TileLayer({
-        source: new TileArcGISRest({
-          url: mapServicesData.mapService_Url
-        }) ,
-        name:mapServicesData. mapService_Name,       
-        visible: true,
-        zIndex:0
-      })
-     // var extent=arcGISLayers.getExtent();
-      mapHelper.olmap.addLayer(arcGISLayers)
-    //  console.log(extent)
-     // mapHelper.ZoonAtExtent(extent)
-     //console.log(mapHelper.getAllLayers())
-      return "success" ;
-   }
-   catch(err){     
-       return "发生错误：" +err;
-   }
+  IsEXistLoadedMapService(name) {
+    layerManager.mangerLayer.forEach(function (value, i) {
+      //查询是否存在名称一样的
+      if (value.mapService_Name == name) {
+        return true;
+      }
+    })
+    return false;
   },
-   //加载ArcGIS 发布的切片服务
-   AddArcGISWMTSService(mapServicesData){
+
+  AddMapService(name) {
+    layerManager.mapServicesDatas.forEach(function (value, i) {
+      if (value.mapServie_Type == 'WMS') {
+        //添加ArcGIS Server 的WMS服务
+        if (value.mapService_Server == "ArcGIS Server") {
+          //名字匹配           
+          if (name == value.mapService_Name) {
+            //检测是否已经存在图层管理中
+            if (layerManager.IsEXistLoadedMapService(name)) {
+              return "已经加载了该服务，无法再次添加！"
+            } else {
+              //添加图层 -成功返回success 失败返回错误原因
+              const res = layerManager.AddArcGISWMSService(value)
+              if (res == "success") {
+                //管理图层添加信息'                               
+                layerManager.mangerLayer.unshift(value)
+                return "success"
+              } else {
+                return res
+              }
+            }
+          }
+        }
+      } else if (value.mapServie_Type == 'WMTS') {
+        if (value.mapService_Server == "ArcGIS Server") {
+          if (name == value.mapService_Name) {
+            if (layerManager.IsEXistLoadedMapService(name)) {
+              return "已经加载了该图层"
+            } else {
+              //添加图层 -成功返回success 失败返回错误原因
+              const res = layerManager.AddArcGISWMTSService(value)
+              if (res == "success") {
+                //管理图层添加信息'                               
+                layerManager.mangerLayer.push(value)
+              } else {
+                return res
+              }
+            }
+          }
+        }
+      } else if (value.mapServie_Type == 'WFS') {
+
+      }
+    })
+  },
+  //加载ArcGIS 发布的动态地图服务
+  AddArcGISWMSService(mapServicesData) {
+    console.log(mapServicesData)
+    try {
+      // var arcGISLayers = new TileLayer({
+      //   source: new TileArcGISRest({
+      //     url: mapServicesData.mapService_Url
+      //   }),
+      //   name: mapServicesData.mapService_Name,
+      //   visible: true,
+      //   zIndex: 0
+      // })
+      var arcGISLayers = new VectorLayer({
+        source: new VectorSource({
+          url: mapServicesData.mapService_Url + '?f=pjson&geometryType=esriGeometryEnvelope',
+          projection: 'EPSG:4326',
+          format: new EsriJSON({
+            extractStyles: false,
+            defaultDataProjection: 'EPSG:4326'
+          })
+        }),
+        name: mapServicesData.mapService_Name,
+        visible: true,
+        zIndex: 0
+      })
+      console.log(arcGISLayers)
+      // var extent=arcGISLayers.getExtent();
+      mapHelper.olmap.addLayer(arcGISLayers)
+      //  console.log(extent)
+      // mapHelper.ZoonAtExtent(extent)
+      //console.log(mapHelper.getAllLayers())
+      return "success";
+    } catch (err) {
+      console.log(err)
+      return "发生错误：" + err;
+    }
+  },
+  //加载ArcGIS 发布的切片服务
+  AddArcGISWMTSService(mapServicesData) {
     try {
       let wmtsLayer = new ImageLayer({
         source: new ImageArcGISRest({
           url: mapServicesData.mapService_Url, //  服务地址 
         }),
-        visible: true,      
-      })    
+        visible: true,
+      })
       mapHelper.olmap.addLayer(wmtsLayer)
-    
-      return "success" ;
-   }
-   catch(err){     
-       return "发生错误：" +err;
-   }
 
-    
+      return "success";
+    } catch (err) {
+      return "发生错误：" + err;
+    }
+
+
     return true
     //排序-- 获取map图层顺序
     // --添加至图层管理器中
@@ -943,43 +960,43 @@ export let layerManager = {
   },
   //[{sort_Order:,mapService_Name:}] arr
   //改变图层的位置
-   ChangeLayersIndex(sortClass){
+  ChangeLayersIndex(sortClass) {
     //默认后加载的 会在 0图层
-    const len=sortClass.length
+    const len = sortClass.length
     sortClass.forEach(function (value, i) {
-      let layer=mapHelper.getLayerByName(value.mapService_Name);
+      let layer = mapHelper.getLayerByName(value.mapService_Name);
       // console.log('改变位置前')
       // console.log(layer)
       // console.log(value.sort_Order)
-      layer.setZIndex(parseInt( (len-value.sort_Order)))
+      layer.setZIndex(parseInt((len - value.sort_Order)))
       // console.log(layer)
       // console.log('改变位置后')
-     
+
     })
-   },
-   //改变图层的可见性
-   ChangeLayerVisble(name,visible){
-    let layer=mapHelper.getLayerByName(name);
+  },
+  //改变图层的可见性
+  ChangeLayerVisble(name, visible) {
+    let layer = mapHelper.getLayerByName(name);
     layer.setVisible(visible)
-   },
-   //移除某个服务图层
-   RemoveLayerByName(name){
-     let theIndex=-1
-    for(let i=0;i<layerManager.mangerLayer.length;i++){
-      let value=layerManager.mangerLayer[i]
-      if(value.mapService_Name==name){
-        theIndex=i;
+  },
+  //移除某个服务图层
+  RemoveLayerByName(name) {
+    let theIndex = -1
+    for (let i = 0; i < layerManager.mangerLayer.length; i++) {
+      let value = layerManager.mangerLayer[i]
+      if (value.mapService_Name == name) {
+        theIndex = i;
         break;
       }
     }
     //图层管理数组移除该数据
     console.log(theIndex)
-    let res=layerManager.mangerLayer.splice(theIndex,1)
+    let res = layerManager.mangerLayer.splice(theIndex, 1)
     console.log(res)
     //地图图层移除该数据
-     mapHelper.removeLayerByName(name)
+    mapHelper.removeLayerByName(name)
 
-   },
+  },
 
   testAddWMTS() {
     var origin = [-400.0, 400.0];
@@ -996,13 +1013,13 @@ export let layerManager = {
 
     let wmsLayer = new ImageLayer({
       source: new ImageArcGISRest({
-        url: 'http://192.168.1.112:6080/arcgis/rest/services/test/GHDK2/MapServer/', 
-        ratio: 1,//  服务地址    
+        url: 'http://192.168.1.112:6080/arcgis/rest/services/test/GHDK2/MapServer/',
+        ratio: 1, //  服务地址    
         params: {
           layers: '规划地块 '
         },
-         tileGrid: tileGrid,
-       projection: mapconfig.projection
+        tileGrid: tileGrid,
+        projection: mapconfig.projection
       }),
       visible: true,
       zIndex: 0,
@@ -1018,7 +1035,7 @@ export let layerManager = {
 
 
     //     },
-        
+
     //   //  projection: mapconfig.projection
     //   }),
     //   visible: true,
@@ -1042,30 +1059,30 @@ export let layerManager = {
     })
     mapHelper.olmap.addLayer(ArcGISLayers)
   },
-  testAddWMTS2(){  
-//url,name,center,projection,remark,index
+  testAddWMTS2() {
+    //url,name,center,projection,remark,index
     let wmsLayer = new ImageLayer({
       source: new ImageArcGISRest({
-        url: 'http://192.168.1.112:6080/arcgis/rest/services/test/GHDK2/MapServer/', 
-        ratio: 1,//  服务地址    
+        url: 'http://192.168.1.112:6080/arcgis/rest/services/test/GHDK2/MapServer/',
+        ratio: 1, //  服务地址    
         params: {
           layers: '规划地块 '
-        },      
-       projection: mapconfig.projection
+        },
+        projection: mapconfig.projection
       }),
       visible: true,
       zIndex: 0,
 
     })
-    
+
     mapHelper.olmap.addLayer(wmsLayer)
 
   },
-  testAddWFS(){  
+  testAddWFS() {
     //let url="http://192.168.1.112:6080/arcgis/services/test/WFSService/MapServer/WFSServer?request=GetCapabilities&service=WFS"
-    let url="http://192.168.1.112:6080/arcgis/services/test/WFSService/MapServer/WFSServer?request=GetFeature&service=WFS&typename=test_WFSService:zgguihua"
-    let response= axiosHelper.requestByGet(url)     
-    let jsonFormat =new GeoJSON();
+    let url = "http://192.168.1.112:6080/arcgis/services/test/WFSService/MapServer/WFSServer?request=GetFeature&service=WFS&typename=test_WFSService:zgguihua"
+    let response = axiosHelper.requestByGet(url)
+    let jsonFormat = new GeoJSON();
     var features = jsonFormat.readFeatures(response)
     console.log(features)
     var vectorSource = new VectorSource()
@@ -1073,71 +1090,71 @@ export let layerManager = {
       vectorSource.addFeatures(features);
     }
     var vector = new VectorLayer({
-      source: vectorSource ,         
-    }); 
-  
-    mapHelper.olmap.addLayer(vector)  
-   
+      source: vectorSource,
+    });
+
+    mapHelper.olmap.addLayer(vector)
+
   },
-  testAddWFSQuery(){  
-   // let url="http://192.168.1.112:6080/arcgis/services/test/WFSService/MapServer/WFSServer?request=GetCapabilities&service=WFS"
-    let url="http://192.168.1.112:6080/arcgis/services/test/WFSService/MapServer/WFSServer?request=GetFeature&service=WFS&typename=test_WFSService:zgguihua"
+  testAddWFSQuery() {
+    // let url="http://192.168.1.112:6080/arcgis/services/test/WFSService/MapServer/WFSServer?request=GetCapabilities&service=WFS"
+    let url = "http://192.168.1.112:6080/arcgis/services/test/WFSService/MapServer/WFSServer?request=GetFeature&service=WFS&typename=test_WFSService:zgguihua"
     //let response= axiosHelper.requestByGet(url)  
     // console.log(response) 
     // let esrijsonFormat =new EsriJSON();
     // var features = esrijsonFormat.readFeatures(response)
     // console.log(features)
     var vectorSource = new VectorSource({
-      format: new  GeoJSON(),
-      url: function(extent) {
+      format: new GeoJSON(),
+      url: function (extent) {
         return 'https://ahocevar.com/geoserver/wfs?service=WFS&' +
-            'version=1.1.0&request=GetFeature&typename=osm:water_areas&' +
-            'outputFormat=application/json&srsname=EPSG:3857&' +
-            'bbox=' + extent.join(',') + ',EPSG:3857';
+          'version=1.1.0&request=GetFeature&typename=osm:water_areas&' +
+          'outputFormat=application/json&srsname=EPSG:3857&' +
+          'bbox=' + extent.join(',') + ',EPSG:3857';
       },
-      strategy:bboxStrategy
+      strategy: bboxStrategy
     })
-  
+
     var vector = new VectorLayer({
-      source: vectorSource ,  
+      source: vectorSource,
       style: new Style({
         stroke: new Stroke({
-            color: 'rgba(0, 0, 255, 1.0)',
-            width: 2
+          color: 'rgba(0, 0, 255, 1.0)',
+          width: 2
         })
       })
-    }); 
-  
-    mapHelper.olmap.addLayer(vector)  
-    var extent=vector.getExtent()
+    });
+
+    mapHelper.olmap.addLayer(vector)
+    var extent = vector.getExtent()
     var view = mapHelper.olmap.getView();
     view.fit(extent, mapHelper.olmap.getSize());
   },
-  testAddWFSQuery2(){  
+  testAddWFSQuery2() {
     // let url="http://192.168.1.112:6080/arcgis/services/test/WFSService/MapServer/WFSServer?request=GetCapabilities&service=WFS"
-     let url="http://192.168.1.112:6080/arcgis/services/test/WFSService/MapServer/WFSServer?request=GetFeature&service=WFS&typename=test_WFSService:zgguihua&outputFormat=application/json"
-     
-     var vectorSource = new VectorSource({
-       format: new  GeoJSON(),
-       url: url,
-       strategy:bboxStrategy
-     })
-   
-     var vector = new VectorLayer({
-       source: vectorSource ,  
-       style: new Style({
-         stroke: new Stroke({
-             color: 'rgba(0, 0, 255, 1.0)',
-             width: 2
-         })
-       })
-     }); 
-   
-     mapHelper.olmap.addLayer(vector)  
-     var extent=vector.getExtent()
-     var view = mapHelper.olmap.getView();
-     view.fit(extent, mapHelper.olmap.getSize());
-   },
+    let url = "http://192.168.1.112:6080/arcgis/services/test/WFSService/MapServer/WFSServer?request=GetFeature&service=WFS&typename=test_WFSService:zgguihua&outputFormat=application/json"
+
+    var vectorSource = new VectorSource({
+      format: new GeoJSON(),
+      url: url,
+      strategy: bboxStrategy
+    })
+
+    var vector = new VectorLayer({
+      source: vectorSource,
+      style: new Style({
+        stroke: new Stroke({
+          color: 'rgba(0, 0, 255, 1.0)',
+          width: 2
+        })
+      })
+    });
+
+    mapHelper.olmap.addLayer(vector)
+    var extent = vector.getExtent()
+    var view = mapHelper.olmap.getView();
+    view.fit(extent, mapHelper.olmap.getSize());
+  },
   //添加动态的WMS 服务
   addTileWMS(url, prj, className, index) {
 
@@ -1147,14 +1164,66 @@ export let layerManager = {
 }
 
 //  //--------------------------属性查询-----------------------------------
- export let  dataSearchHelper={
-   // 是否开启数据查询
-    isOpenSearch:false,
-    mapClick(evt){
-      //第一步获取坐标
-      // 遍历 目前加载服务的 范围
-      // 如果在内部 在进去对应的 wfs 服务查找要素
-      alert("点击开始了")
-    }
+export let dataSearchHelper = {
+  // 是否开启数据查询
+  isOpenSearch: false,
+  //返回结果数据
+  resFeatureIno:{},
+  mapClick(e) {
+    //第一步获取坐标
+    // 遍历 目前加载服务的 范围
+    // 如果在内部 在进去对应的 wfs 服务查找要素
+    // alert("点击开始了")
+    if (dataSearchHelper.isOpenSearch) {
 
- }
+      alert(e.coordinate)
+      const xy = mapHelper.LonLatTransformToXY(e.coordinate)
+      //alert(xy)
+      // [12792611.428875942, 2978234.633325092]
+      console.log(e.coordinate)
+      console.log(xy)
+      const xmin = xy[0] - 0.5
+      const ymin = xy[1] - 0.5
+      const xmax = xy[0] + 0.5
+      const ymax = xy[1] + 0.5
+      console.log(xmin)
+      console.log(ymin)
+      console.log(xmax)
+      console.log(ymax)
+         var datas={
+           '单位产品':'32423',
+           '单品':'12',
+           '单位产品':'23',
+           '单位产':'34'
+          }
+  //获取属性名称
+    const propertyNames=   Object.getOwnPropertyNames(datas)
+  //构建数据
+    let showdata=[]
+    for (let index = 0; index < propertyNames.length; index++) {
+      const element = propertyNames[index];
+      let keyvalues={
+        'key':element,
+        'value':datas[element]
+      }
+      showdata.push(keyvalues)
+    }
+    dataSearchHelper.resFeatureIno=showdata
+      var popup = new Overlay({
+        element: document.getElementById('olmap_popup'),
+        position:e.coordinate,
+        autoPan: true,
+       autoPanAnimation: {
+       duration: 250
+  }
+      });
+    
+      mapHelper.olmap.addOverlay(popup);
+     
+      //'%5B3.856699870410655E7%2C2861915.3481464805%2C3.862928174533927E7%2C+2877525.7960340353%5D'+
+
+    }
+  
+  }
+
+}

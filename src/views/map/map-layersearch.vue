@@ -13,7 +13,7 @@
             <div class="layersearch-head">
                 <span >图层控制</span>                
                 <div style="float: right;padding-right: 14px;">
-                    <img  src="/img/mapindex/del.png" class="delete" @click="isShowLayManager=false">
+                    <img  src="/img/mapindex/del.png" class="layersearch-hide" @click="isShowLayManager=false">
                    
                 </div>
             </div>
@@ -152,5 +152,8 @@
     }
     .layersearch-head{
         margin-bottom: 10px;
+    }
+     .layersearch-hide{
+      cursor: pointer;
     }
 </style>

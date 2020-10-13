@@ -1,64 +1,65 @@
 <template>
-<div>
-<div class="mapTools">
-   
-
-   <el-button type="info" icon="el-icon-picture" class="toolButton"  @click="onPreview">规划专题图    
-  </el-button>
+  <div>
+    <div class="mapTools">
 
 
-    
-    <el-button type="info" icon="el-icon-folder-add" class="toolButton" plain>加载</el-button>
-    <el-popover placement="bottom" width="300" trigger="click">
-      <div class="countrydiv">
-        <div class="areas">
-          <span>市区：</span>
-          <el-link v-for="area in areas" :key="area" type="primary">
-            {{area}}
-          </el-link>
-        </div>
-        <div class="countrycontent">
-          <div class="countrytitle">
-            <span> 县：</span>
+      <el-button type="info" icon="el-icon-picture" class="toolButton" @click="onPreview">规划专题图
+      </el-button>
+
+      <el-button type="info" icon="el-icon-search" class="toolButton" @click="onSearch" v-bind:value="searchValue"
+        plain>{{searchValue}}</el-button>
+      <el-popover placement="bottom" width="300" trigger="click">
+        <div class="countrydiv">
+          <div class="areas">
+            <span>市区：</span>
+            <el-link v-for="area in areas" :key="area" type="primary">
+              {{area}}
+            </el-link>
           </div>
-          <div class='countys'>
-            <el-link v-for="country in countrys" :key="country">{{country}}</el-link>
+          <div class="countrycontent">
+            <div class="countrytitle">
+              <span> 县：</span>
+            </div>
+            <div class='countys'>
+              <el-link v-for="country in countrys" :key="country">{{country}}</el-link>
+            </div>
           </div>
         </div>
-      </div>
-      <el-button type="info" icon="el-icon-search" class="toolButton" slot="reference" plain>查询</el-button>
-    </el-popover>
-    <el-button type="info" icon="el-icon-map-location" class="toolButton" @click="location" plain>定位</el-button>
-    <el-button type="info" icon="el-icon-delete" class="toolButton" @click="clearAll" plain>清除</el-button>
-    <el-button type="info" icon="el-icon-s-order" class="toolButton" @click="showManagerlayer" plain>图层管理
-    </el-button>
-    <el-select class="toolSelect" ref="EL_toolSelect" v-model="value" @change="changeTools"
-      :popper-append-to-body="false" placeholder="工具">
-      <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
-      </el-option>
-    </el-select>
-    <mapLayermanager2 :panelShow.sync="layManagerShow"></mapLayermanager2>
+        <el-button type="info" icon="el-icon-view" class="toolButton" slot="reference" plain>导航</el-button>
+      </el-popover>
+      <el-button type="info" icon="el-icon-map-location" class="toolButton" @click="location" plain>定位</el-button>
+      <el-button type="info" icon="el-icon-delete" class="toolButton" @click="clearAll" plain>清除</el-button>
+      <el-button type="info" icon="el-icon-s-order" class="toolButton" @click="showManagerlayer" plain>图层管理
+      </el-button>
+      <el-select class="toolSelect" ref="EL_toolSelect" v-model="value" @change="changeTools"
+        :popper-append-to-body="false" placeholder="工具">
+        <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
+        </el-option>
+      </el-select>
+      <mapLayermanager2 :panelShow.sync="layManagerShow"></mapLayermanager2>
 
+    </div>
+      <!-- 大图浏览 -->
+    <el-image-viewer v-if="showViewer" :on-close="()=>{showViewer=false}" :url-list="srcList">
+    </el-image-viewer>
+    <!-- 要素信息查询 -->
+    <div id='olmap_popup'>
+   4545454544
+    </div>
   </div>
-<el-image-viewer   
-                      v-if="showViewer" 
-                     :on-close="()=>{showViewer=false}"
-                     :url-list="srcList" >
-  </el-image-viewer>
  
-
-</div>
-  
 </template>
 
 <script>
   import {
     toolsHelper,
-    layerManager
+    layerManager,
+    dataSearchHelper
   } from '../../utils/mapHelper.js'
   import mapLayermanager2 from '@/views/map/map-layermanager2'
   import draggable from 'vuedraggable'
   import ElImageViewer from 'element-ui/packages/image/src/image-viewer'
+  import mapFeatureinfo from '@/views/map/map-featureinfo'
   export default {
     name: 'map-tools',
     data() {
@@ -88,19 +89,24 @@
         value: '工具',
         areas: ['章贡区', '南康区', '赣县区', '瑞金市', '龙南市'],
         countrys: ['信丰县', '大余县', '上犹县', '崇义县', '安远县', '定南县', '全南县', '宁都县', '于都县', '兴国县', '会昌县', '寻乌县', '石城县'],
-        showViewer:false,
+        showViewer: false,
         layManagerShow: false,
-         url: 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg',
+        url: 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg',
         srcList: [
           'https://fuss10.elemecdn.com/8/27/f01c15bb73e1ef3793e64e6b7bbccjpeg.jpeg',
           'https://fuss10.elemecdn.com/1/8e/aeffeb4de74e2fde4bd74fc7b4486jpeg.jpeg'
-        ]
+        ],
+        searchValue: '开启查询',
+        isOpenSearch: false,
+        resFeatureIno:dataSearchHelper.resFeatureIno
+
       }
     },
     components: {
       draggable,
       mapLayermanager2,
-      ElImageViewer
+      ElImageViewer,
+      mapFeatureinfo
     },
     methods: {
       location() {
@@ -169,12 +175,25 @@
         this.layManagerShow = true
       },
       onPreview() {
-          this.showViewer = true
-        },
-        // 关闭查看器
-        closeViewer() {
-          this.showViewer = false
+        this.showViewer = true
+      },
+      // 关闭查看器
+      closeViewer() {
+        this.showViewer = false
+      },
+      onSearch() {
+        if (this.searchValue == "开启查询") {
+          dataSearchHelper.isOpenSearch = true
+          this.searchValue = "停止查询"
+          document.getElementById("map").style.cursor = "pointer"
+
+        } else {
+          dataSearchHelper.isOpenSearch = false
+          this.searchValue = "开启查询"
+          document.getElementById("map").style.cursor = "default";
         }
+
+      }
     }
   }
 </script>
@@ -268,6 +287,5 @@
 
     width: 40px;
     float: left;
-
   }
 </style>

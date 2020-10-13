@@ -30,7 +30,21 @@
       this.map = mapHelper.map     
       //设置默认显示图层
       mapHelper.changeBaseMapVisible(["tdtImg","tdtCia"])
-      toolsHelper.navigation();
+     // toolsHelper.navigation();
+//    const url='http://192.168.1.112:6080/arcgis/rest/services/test/WFSService/MapServer/0/query?where=geometry '
+//    + encodeURIComponent(
+//         '{"xmin":' +
+//          3.85735331064E7 +
+//           ',"ymin":' +
+//           2845214.6052 +
+//           ',"xmax":' +
+//            3.86027192041E7 +
+//           ',"ymax":' +
+//           2872162.221 +
+//           "}"
+//       ) +
+// '&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson'
+//  console.log(url)
       
     }
   };
