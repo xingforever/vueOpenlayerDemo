@@ -195,7 +195,11 @@ const olControls = {
 }
 //--------------------------地图Helper --------------------------------
 export let mapHelper = {
+  //地图对象
   olmap: null,
+  //展示地图对象的html Element
+  olmapElement:'map',
+  //国家CSC2000 投影坐标系  38度带
   proj4526: null,
   //初始化地图对象
   initMap() {
@@ -232,11 +236,6 @@ export let mapHelper = {
     //工具初始化
     toolsHelper.initTools();
   
-    //绑定事件
-    mapHelper.olmap.on('singleclick', function (evt) {
-      //数据搜索
-      dataSearchHelper.mapClick(evt);
-    })
   },
   //定义坐标系
   definedProjection() {
@@ -252,9 +251,18 @@ export let mapHelper = {
   LonLatTransformToXY(coordinate) {
     return transform(coordinate, 'EPSG:4326',mapHelper.proj4526 )
   },
+
   XYTransformToLonLat(coordinate) {
     return transform(coordinate, mapHelper.proj4526, 'EPSG:4326')
   },
+  //添加地图事件
+  addMapEvent(type,listener){
+   mapHelper.olmap.on(type,listener)
+  },
+  //移除地图事件
+  removeMapEvent(type,listener){
+  mapHelper.olmap.un(type,listener)
+  },  
   //通过名字移除图层
   removeLayerByName(name) {
     let layer = mapHelper.getLayerByNameArr(name)
@@ -1169,19 +1177,19 @@ export let dataSearchHelper = {
   isOpenSearch: false,
   //返回结果数据
   resFeatureIno:{},
+  //界面是否展示要素属性数据
+  isShowFeatureOverlay:false,
+  //显示要素信息的OverlayId
+  featureInfoOverlayId:'olmap_popup_fearureinfo',
+  //显示要素信息的ElementId
+  featuerInfoElementId:'olmap_popup',
   mapClick(e) {
     //第一步获取坐标
     // 遍历 目前加载服务的 范围
     // 如果在内部 在进去对应的 wfs 服务查找要素
     // alert("点击开始了")
-    if (dataSearchHelper.isOpenSearch) {
-
-      alert(e.coordinate)
-      const xy = mapHelper.LonLatTransformToXY(e.coordinate)
-      //alert(xy)
-      // [12792611.428875942, 2978234.633325092]
-      console.log(e.coordinate)
-      console.log(xy)
+    if (dataSearchHelper.isOpenSearch) {     
+      const xy = mapHelper.LonLatTransformToXY(e.coordinate)     
       const xmin = xy[0] - 0.5
       const ymin = xy[1] - 0.5
       const xmax = xy[0] + 0.5
@@ -1190,7 +1198,7 @@ export let dataSearchHelper = {
       console.log(ymin)
       console.log(xmax)
       console.log(ymax)
-         var datas={
+      var datas={
            '单位产品':'32423',
            '单品':'12',
            '单位产品':'23',
@@ -1209,21 +1217,30 @@ export let dataSearchHelper = {
       showdata.push(keyvalues)
     }
     dataSearchHelper.resFeatureIno=showdata
-      var popup = new Overlay({
-        element: document.getElementById('olmap_popup'),
-        position:e.coordinate,
-        autoPan: true,
-       autoPanAnimation: {
-       duration: 250
-  }
-      });
-    
-      mapHelper.olmap.addOverlay(popup);
-     
-      //'%5B3.856699870410655E7%2C2861915.3481464805%2C3.862928174533927E7%2C+2877525.7960340353%5D'+
+    console.log(showdata)  
+    return   showdata
 
     }
   
+  },
+  removeFeatureOverlay()
+  {
+    let popup= mapHelper.olmap.getOverlayById(dataSearchHelper.featureInfoOverlayId);
+    mapHelper.olmap.removeOverlay(popup);
+  },
+  addFeatureOverlay(coordinate){
+    const popup = new Overlay({
+      id: dataSearchHelper.featureInfoOverlayId,
+      element: document.getElementById(dataSearchHelper.featuerInfoElementId),
+      position:coordinate,
+      autoPan: true,
+     autoPanAnimation: {
+     duration: 250
+      }
+    });  
+    mapHelper.olmap.addOverlay(popup);
+    dataSearchHelper.isShowFeatureOverlay=true;
+   
   }
 
 }

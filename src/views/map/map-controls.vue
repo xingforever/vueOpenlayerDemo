@@ -1,9 +1,11 @@
 <template>
+
  <div class="mapControl">
    <mapMouseposition></mapMouseposition>
    <mapZoom></mapZoom>
    <mapZoom></mapZoom>
  </div>
+ 
 </template>
  
 <script>

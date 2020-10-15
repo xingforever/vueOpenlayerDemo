@@ -6,7 +6,7 @@
       <el-button type="info" icon="el-icon-picture" class="toolButton" @click="onPreview">规划专题图
       </el-button>
 
-      <el-button type="info" icon="el-icon-search" class="toolButton" @click="onSearch" v-bind:value="searchValue"
+      <el-button type="info" icon="el-icon-search" class="toolButton" @click="onSearch($event)" v-bind:value="searchValue"
         plain>{{searchValue}}</el-button>
       <el-popover placement="bottom" width="300" trigger="click">
         <div class="countrydiv">
@@ -43,8 +43,19 @@
     <el-image-viewer v-if="showViewer" :on-close="()=>{showViewer=false}" :url-list="srcList">
     </el-image-viewer>
     <!-- 要素信息查询 -->
-    <div id='olmap_popup'>
-   4545454544
+    <div id='olmap_popup' class='olmap_popup_info' v-if="true">
+       <div class="olmap_popup_head">
+         <span  style="
+    margin-left: 85px;">详细信息</span>
+            <img src="@/assets/img/toolIcons/del.png" class="deletefeatureinfo" @click="closefeatureInfo" />
+             <hr/>
+       </div>
+       <div class="olmap_popup_detail">
+         <mapFeatureinfo :tableData.sync="tableData"></mapFeatureinfo>
+       </div>
+       <div class="olmap_popup_tail">
+            <hr/>
+       </div>
     </div>
   </div>
  
@@ -52,6 +63,7 @@
 
 <script>
   import {
+    mapHelper,
     toolsHelper,
     layerManager,
     dataSearchHelper
@@ -98,7 +110,10 @@
         ],
         searchValue: '开启查询',
         isOpenSearch: false,
-        resFeatureIno:dataSearchHelper.resFeatureIno
+        resFeatureIno:dataSearchHelper.resFeatureIno,
+        isShowFeatureOverlay:dataSearchHelper.isShowFeatureOverlay,
+        clickEvt:'',
+        tableData:[]
 
       }
     },
@@ -108,6 +123,7 @@
       ElImageViewer,
       mapFeatureinfo
     },
+   
     methods: {
       location() {
         this.$prompt('请输入经纬度', '定位(lon,lat)', {
@@ -181,17 +197,47 @@
       closeViewer() {
         this.showViewer = false
       },
-      onSearch() {
+      onSearch(event) {
         if (this.searchValue == "开启查询") {
+          console.log('查询开始')
+
           dataSearchHelper.isOpenSearch = true
-          this.searchValue = "停止查询"
-          document.getElementById("map").style.cursor = "pointer"
+           //绑定事件
+          mapHelper.addMapEvent('singleclick', function (evt) {
+          //点击点的坐标
+          let coordinate=evt.coordinate
+          //数据搜索结果
+          let res=  dataSearchHelper.mapClick(evt);
+          console.log(res)
+          //存在数据 
+          if(typeof(res)!='undefined'){
+                 this.tableData=res;
+              this.isShowFeatureOverlay=true
+              console.log(this.tableData)
+              console.log(coordinate)
+              dataSearchHelper.addFeatureOverlay(coordinate)
+              
+             
+          }
+
+           this.searchValue = "停止查询"
+           document.getElementById("map").style.cursor = "pointer"
+            })
+          
 
         } else {
           dataSearchHelper.isOpenSearch = false
           this.searchValue = "开启查询"
           document.getElementById("map").style.cursor = "default";
+
+          //移除事件
+           mapHelper.removeMapEvent('singleclick',function(){
+             console.log('点击事件已经移除')
+           })
         }
+
+      },
+      closefeatureInfo(){
 
       }
     }
@@ -250,23 +296,19 @@
     background-color: white !important;
     border-color: white !important;
   }
-
   .el-select-dropdown__item {
     font-size: 10px !important;
     padding: 0 10px;
   }
-
   .countrydiv {
     width: 300px;
     height: 100px;
     float: left;
   }
-
   .areas {
     height: 30px;
 
   }
-
   .countrycontent {
     float: left;
     width: 300px;
@@ -276,16 +318,41 @@
     height: 80px;
     width: 230px;
     float: left;
-
   }
-
   .el-link {
     margin-left: 4px;
   }
-
   .countrytitle {
-
     width: 40px;
     float: left;
+  }
+  .olmap_popup_info{
+    width: 250px;
+    height: 150px;    
+    background-color: white !important;
+  }
+  .olmap_popup_head{
+        width: 250px;
+        padding-top: 5px; 
+       background-color: white;
+  }
+  .olmap_popup_detail{
+       width: 250px;
+       
+  }
+  .olmap_popup_tail{
+        width: 250px;
+        height: 10px;
+         padding-top: 5px;        
+        background-color: white;
+       
+  }
+  .deletefeatureinfo{
+        width: 20px;
+        height: 20px;
+        border-radius: 60%;
+        position: absolute;       
+        margin-left: 80px;
+        cursor: pointer;
   }
 </style>
