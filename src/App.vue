@@ -2,11 +2,12 @@
   <div id="app">
 
     <olmap>   
-    <mapControls />
+   
     </olmap>
     <mapChange />
     <mapTools />
 <mapLayersearch></mapLayersearch>
+
 <!-- <mapLocationsearch></mapLocationsearch> -->
 <!-- <test></test> -->
   </div>
@@ -20,6 +21,7 @@
   import mapLayermanager from '@/views/map/map-layermanager'
  import mapLayersearch from '@/views/map/map-layersearch'
  import mapLocationsearch from '@/views/map/map-locationsearch'
+ import mapFeatureinfotable from '@/views/map/map-featureinfotable'
   import test from '@/views/map/test'
   // 测试
   export default {
@@ -31,7 +33,7 @@
       mapTools,     
       mapLayersearch,
       mapLocationsearch,
-      test
+      mapFeatureinfotable
     }
   }
 </script>

@@ -58,8 +58,8 @@ import WMTS from 'ol/source/WMTS';
 import WMTSTileGrid from 'ol/tilegrid/WMTS';
 import GeoJSON from 'ol/format/GeoJSON';
 import Overlay from 'ol/Overlay';
-
-
+import Select from 'ol/interaction/Select';
+import {platformModifierKeyOnly} from 'ol/events/condition';
 
 import {
   ImageArcGISRest,
@@ -257,11 +257,11 @@ export let mapHelper = {
   },
   //添加地图事件
   addMapEvent(type,listener){
-   mapHelper.olmap.on(type,listener)
+   return mapHelper.olmap.on(type,listener)
   },
   //移除地图事件
   removeMapEvent(type,listener){
-  mapHelper.olmap.un(type,listener)
+    return mapHelper.olmap.un(type,listener)
   },  
   //通过名字移除图层
   removeLayerByName(name) {
@@ -501,11 +501,12 @@ export let toolsHelper = {
   },
   //添加绘图
   addPoltInteraction(type) {
-    toolsHelper.addPoltInteractionFun(type)
+    toolsHelper.addPoltInteractionFun(type,true,toolsHelper.drawStyle)
 
   },
-  //标绘方法 --layer -标绘
-  addPoltInteractionFun(type) {
+  //标绘方法 --layer -标绘 --isClose 是否使用一次，thestyle: 最后展示图层结果
+  addPoltInteractionFun(type,isClose,thestyle) {
+  
     if (toolsHelper.plottingOption.draw != null) {
       mapHelper.olmap.removeInteraction(toolsHelper.plottingOption.draw); // 防止多次点击添加多个图层
     }
@@ -523,11 +524,12 @@ export let toolsHelper = {
     } else if (type == "Box") {
       _type = "Circle";
     }
+    console.log(_type)
     //绘制时的样式
     toolsHelper.plottingOption.draw = new Draw({
       source: source,
       type: _type,
-      style: toolsHelper.drawStyle,
+      style: thestyle,
       geometryFunction: geometryFunction
     });
     //添加Interaction
@@ -537,16 +539,22 @@ export let toolsHelper = {
       toolsHelper.plottingOption.sketch = evt.feature;
       let plottingLayer = new VectorLayer({
         source: source,
-        style: toolsHelper.drawStyle,
+        style: thestyle,
         zIndex: 9,
         name: "标绘"
       });
       mapHelper.olmap.addLayer(plottingLayer);
 
     });
+   
     toolsHelper.plottingOption.draw.on("drawend", evt => {
-      mapHelper.olmap.removeInteraction(toolsHelper.plottingOption.draw);
+    
+      if(isClose){
+       mapHelper.olmap.removeInteraction(toolsHelper.plottingOption.draw);
+      }
+     
     });
+    return toolsHelper.plottingOption.draw
   },
   // 添加测量标注
   createMeasureTooltip() {
@@ -767,6 +775,7 @@ export let layerManager = {
   allLayers: [], //所有图层列表
   layerGroups: [], //服务组名称列表-tree
   mangerLayer: [], //图层管理器有的服务列表
+  mangerLayerNames:[],//图层管理器有的服务名称列表
   mapServicesDatas: [], //地图服务信息
   InitLayerManager() {
     //1 发送请求 -- 获取数据库存储服务数据--
@@ -878,6 +887,7 @@ export let layerManager = {
               if (res == "success") {
                 //管理图层添加信息'                               
                 layerManager.mangerLayer.unshift(value)
+                layerManager.mangerLayerNames.unshift(name)
                 return "success"
               } else {
                 return res
@@ -895,7 +905,8 @@ export let layerManager = {
               const res = layerManager.AddArcGISWMTSService(value)
               if (res == "success") {
                 //管理图层添加信息'                               
-                layerManager.mangerLayer.push(value)
+                layerManager.mangerLayer.unshift(value)
+                layerManager.mangerLayerNames.unshift(name)
               } else {
                 return res
               }
@@ -1000,11 +1011,13 @@ export let layerManager = {
     //图层管理数组移除该数据
     console.log(theIndex)
     let res = layerManager.mangerLayer.splice(theIndex, 1)
+    layerManager.mangerLayerNames.splice(name, 1)
     console.log(res)
     //地图图层移除该数据
     mapHelper.removeLayerByName(name)
 
   },
+ 
 
   testAddWMTS() {
     var origin = [-400.0, 400.0];
@@ -1172,9 +1185,34 @@ export let layerManager = {
 }
 
 //  //--------------------------属性查询-----------------------------------
+
 export let dataSearchHelper = {
+  
   // 是否开启数据查询
   isOpenSearch: false,
+
+  //属性查询类型
+  searchType:'',
+  //框选样式-标绘
+  searchStyle: new Style({
+    fill: new Fill({
+      color: "rgba(255,255,255,0.2)"
+    }),
+    stroke: new Stroke({
+      color: "red",
+      lineDash: [5, 5],
+      width: 2
+    }),
+    image: new Circle({
+      radius: 5,
+      stroke: new Stroke({
+        color: "red"
+      }),
+      fill: new Fill({
+        color: "red"
+      })
+    })
+  }),
   //返回结果数据
   resFeatureIno:{},
   //界面是否展示要素属性数据
@@ -1199,13 +1237,17 @@ export let dataSearchHelper = {
       console.log(xmax)
       console.log(ymax)
       var datas={
-           '单位产品':'32423',
-           '单品':'12',
-           '单位产品':'23',
-           '单位产':'34'
+           'xmain':xmin,
+           'ymin':ymax,
+           'xmax':xmax,
+           'ymax':ymax,
+           'xmain2':xmin,
+           'ymin2':ymax,
+           'xmax2':xmax,
+           'ymax2':ymax,
           }
   //获取属性名称
-    const propertyNames=   Object.getOwnPropertyNames(datas)
+    const propertyNames=  Object.getOwnPropertyNames(datas)
   //构建数据
     let showdata=[]
     for (let index = 0; index < propertyNames.length; index++) {
@@ -1223,6 +1265,137 @@ export let dataSearchHelper = {
     }
   
   },
+  mapHover(e){
+    if (dataSearchHelper.isOpenSearch) {     
+      if (dataSearchHelper.isOpenSearch) {     
+        const xy = mapHelper.LonLatTransformToXY(e.coordinate)     
+        const xmin = xy[0] - 0.5
+        const ymin = xy[1] - 0.5
+        const xmax = xy[0] + 0.5
+        const ymax = xy[1] + 0.5
+        console.log(xmin)
+        console.log(ymin)
+        console.log(xmax)
+        console.log(ymax)
+        var datas={
+             'xmain':xmin,
+             'ymin':ymax,
+             'xmax':xmax,
+             'ymax':ymax,
+             'xmain2':xmin,
+             'ymin2':ymax,
+             'xmax2':xmax,
+             'ymax2':ymax,
+            }
+    //获取属性名称
+      const propertyNames=  Object.getOwnPropertyNames(datas)
+    //构建数据
+      let showdata=[]
+      for (let index = 0; index < propertyNames.length; index++) {
+        const element = propertyNames[index];
+        let keyvalues={
+          'key':element,
+          'value':datas[element]
+        }
+        showdata.push(keyvalues)
+      }
+      dataSearchHelper.resFeatureIno=showdata
+      console.log(showdata)  
+      return  showdata
+  
+      }
+
+
+    }
+  },
+  mapBox(layername){
+    //借助工具绘图的方法--获得范围
+    // let resBox=toolsHelper.addPoltInteractionFun('Box',false,dataSearchHelper.searchStyle)
+    // console.log(resBox) 
+    // console.log(mapHelper.getLayerByName('标绘'))
+    // let layer=mapHelper.getLayerByName('标绘')
+    // let fearure=layer.getFeatures()
+    // console.log(feature)
+    // let res=layer.gt
+    //let xylist=resBox.getProperties('maxPoints');
+    // let xmin=xylist[0][0]
+    // let xmax=xylist[1][0]
+    // let ymin =xylist[0][1]
+    // let ymax=xylist[1][1]
+    // console.log(xmin)
+    // console.log(ymin)
+    // console.log(xmax)
+    // console.log(ymax)
+   // console.log(xylist)  
+ 
+    if (toolsHelper.plottingOption.draw != null) {
+      mapHelper.olmap.removeInteraction(toolsHelper.plottingOption.draw); // 防止多次点击添加多个图层
+    }
+    let source = new VectorSource();
+    let resdata = [];
+    let _type = 'Circle';
+    
+    console.log(_type)
+    //绘制时的样式
+    toolsHelper.plottingOption.draw = new Draw({
+      source: source,
+      type: _type,
+      style: dataSearchHelper.searchStyle,
+      geometryFunction: createBox()
+    });
+    //添加Interaction
+    mapHelper.olmap.addInteraction(toolsHelper.plottingOption.draw);
+    let plottingLayer = new VectorLayer({
+      source: source,        
+      zIndex: 9,
+      name: "标绘"
+    });
+    mapHelper.olmap.addLayer(plottingLayer);
+    //监听绘制开始
+    toolsHelper.plottingOption.draw.on("drawstart", evt => {
+   
+      toolsHelper.plottingOption.sketch = evt.feature;
+      console.log(toolsHelper.plottingOption.sketch)
+      
+  
+    });
+   
+    toolsHelper.plottingOption.draw.on("drawend", evt => {    
+    //  mapHelper.olmap.removeInteraction(toolsHelper.plottingOption.draw);
+    var features=source.getFeatures();
+    if(features.length==1){
+      source.removeFeature(features[0])
+    }
+    console.log(features)
+   let extent=toolsHelper.plottingOption.sketch.getGeometry().getExtent()
+   console.log(extent)
+   //获取了范围， 图层名字
+      
+   
+    });
+    return   "OKok"
+   
+   
+   
+  },
+  //切割数据
+  sliceData(page,pagecount){
+    
+  },
+  //移除地图事件
+  removeMapEvt(){
+    if(dataSearchHelper.searchType=='clickFeatureSearch'){
+       //移除事件
+     mapHelper.removeMapEvent('singleclick', function () {
+      console.log('点击事件已经移除')
+    })
+    }else if(dataSearchHelper.searchType=='clickFeatureSearch'){
+       //移除鼠标悬浮事件
+    }else{
+
+    }
+    
+  },
   removeFeatureOverlay()
   {
     let popup= mapHelper.olmap.getOverlayById(dataSearchHelper.featureInfoOverlayId);
@@ -1239,7 +1412,7 @@ export let dataSearchHelper = {
       }
     });  
     mapHelper.olmap.addOverlay(popup);
-    dataSearchHelper.isShowFeatureOverlay=true;
+   
    
   }
 

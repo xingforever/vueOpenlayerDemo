@@ -1,24 +1,34 @@
 <template>
 
  <div class="mapControl">
-   <mapMouseposition></mapMouseposition>
-   <mapZoom></mapZoom>
-   <mapZoom></mapZoom>
+   <div id="mouse-position" class="custom-mouse-position">
+
+  </div>
+  <div class="custom-zoom" id="zoomControl">
+ 
+ </div>
+   
+   <div class="custom-scaleLine" id="scaleLineControl">
+ 
+ </div>
  </div>
  
 </template>
  
 <script>
-import mapMouseposition from '@/views/map/map-mouseposition'
-import mapScaleline from '@/views/map/map-scaleline'
-import mapZoom from '@/views/map/map-zoom'
+// import mapMouseposition from '@/views/map/map-mouseposition'
+// import mapScaleline from '@/views/map/map-scaleline'
+// import mapZoom from '@/views/map/map-zoom'
 export default {
  name: 'map-controls',
   components: {
-      mapMouseposition,
-      mapZoom,
-      mapScaleline
+      // mapMouseposition,
+      // mapZoom,
+      // mapScaleline
   }
 }
 </script>
+<style scoped>
+ 
+</style>
  
