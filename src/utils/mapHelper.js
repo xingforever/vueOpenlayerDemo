@@ -1411,8 +1411,10 @@ export let dataSearchHelper = {
      duration: 250
       }
     });  
+    console.log(coordinate)
     mapHelper.olmap.addOverlay(popup);
-   
+    console.log( document.getElementById(dataSearchHelper.featuerInfoElementId))
+    console.log(mapHelper.olmap.getOverlays())
    
   }
 

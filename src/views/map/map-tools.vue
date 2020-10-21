@@ -144,7 +144,7 @@
           'https://fuss10.elemecdn.com/1/8e/aeffeb4de74e2fde4bd74fc7b4486jpeg.jpeg'
         ],
         searchValue: '开启查询',
-        isShowFeatureOverlay: false,//显示单击 -查询数据结果
+        isShowFeatureOverlay: true,//显示单击 -查询数据结果
         featureInfoData: [], //单击- 查询数据
         boxlayerSelectVisible:false,// 框选 -选择图层
         boxSelectLayerName: '',
@@ -175,18 +175,7 @@
         console.log(command)
         console.log(command == 'clickFeatureSearch')
       
-        if (command == 'hoverFeatureSearch') {
-          dataSearchHelper.isOpenSearch = true
-          dataSearchHelper.searchType='hoverFeatureSearch'
-          mapHelper.addMapEvent('singleclick', function (evt) {
-                  //点击点的坐标
-            let coordinate = evt.coordinate
-            //数据搜索结果
-            let res = dataSearchHelper.mapHover(evt);
-
-          }
-          )
-        } else if (command == 'clickFeatureSearch') {
+         if (command == 'clickFeatureSearch') {
          
           dataSearchHelper.isOpenSearch = true
           dataSearchHelper.searchType='clickFeatureSearch'

@@ -1,10 +1,13 @@
 <template>
   <div id="app">
 
-    <olmap>   
    
-    </olmap>
-    <mapChange />
+   
+        <olmap></olmap>
+     
+     
+       
+    <mapChange @setShowinfo="getShowinfo" />
     <mapTools />
 <mapLayersearch></mapLayersearch>
 
@@ -23,9 +26,16 @@
  import mapLocationsearch from '@/views/map/map-locationsearch'
  import mapFeatureinfotable from '@/views/map/map-featureinfotable'
   import test from '@/views/map/test'
+  import cesuimmap from '@/views/map/cesuimmap'
   // 测试
   export default {
     name: 'app',
+    data() {
+      return {
+        olmapshow: true,
+        cesuimmapshow: false
+      }
+    },
     components: {
       olmap,
       mapControls,
@@ -33,8 +43,17 @@
       mapTools,     
       mapLayersearch,
       mapLocationsearch,
-      mapFeatureinfotable
-    }
+      mapFeatureinfotable,
+      cesuimmap
+    },
+     methods: {
+      getShowinfo(olmapshowinfo) {
+        console.log('收到子组件值')
+        this.olmapshow = olmapshowinfo
+        this.cesuimmapshow = !olmapshowinfo
+        console.log(this.olmapshow)
+      }
+    },
   }
 </script>
 

@@ -5,7 +5,7 @@
             <div class="mapTypeCard panorama1 mapChange choosedType" :class="{'active':selectnum==0}"  data-num=0  data-name="tdtImg,tdtCia" @click="changeMap($event)"><span>影像地图</span></div>
             <div class="mapTypeCard panorama mapChange choosedType" :class="{'active':selectnum==1}"   data-num=1 data-name="tdtTer,tdtCta" @click="changeMap($event)" ><span>地形地图</span></div>
             <div class="mapTypeCard normal  mapChange  choosedType"       :class="{'active':selectnum==2}"  data-num=2   data-name="tdtVec,tdtCva" @click="changeMap($event)"  ><span>矢量地图</span></div>
-            <div class="mapTypeCard mapChange earth  choosedType"   :class="{'active':selectnum==3}"   data-num=3   data-name="tdtVec,tdtCva" @click="changeMap($event)" > <span>三维地球</span> </div>
+            <div class="mapTypeCard mapChange earth  choosedType"   :class="{'active':selectnum==3}"   data-num=3   data-name="cesuimmap" @click="changeMap($event)" > <span>三维地球</span> </div>
         </div>
     </div>
 </template>
@@ -28,13 +28,20 @@
         },
         methods: {
            
-            changeMap: function (event) {      
-            var str = [event.srcElement.dataset.name]   
-             this.selectnum=event.srcElement.dataset.num    
+            changeMap: function (event) { 
+         
+            let str = [event.srcElement.dataset.name][0]  
+            
+            if(str=='cesuimmap') {
+              this.$emit('setShowinfo', false)
+            
+            }else{
+             this.$emit('setShowinfo',true)                        
             //提交  --修改baseMap的可见性             
-            var arr = str[0].split(',');                   
+            var arr = str.split(',');                   
             mapHelper.changeBaseMapVisible(arr)
-            },
+            }
+            },  
             mouseEnter:function(){
                this.active=true
             },
