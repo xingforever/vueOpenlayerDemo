@@ -172,13 +172,9 @@
       //属性查询时间
       handleCommand(command) {
         //悬浮查询
-        console.log(command)
-        console.log(command == 'clickFeatureSearch')
-      
-         if (command == 'clickFeatureSearch') {
-         
-          dataSearchHelper.isOpenSearch = true
-          dataSearchHelper.searchType='clickFeatureSearch'
+       
+         if (command == 'clickFeatureSearch') {         
+          dataSearchHelper.isOpenSearch = true       
           let that = this
           //绑定事件
           mapHelper.addMapEvent('singleclick', function (evt) {

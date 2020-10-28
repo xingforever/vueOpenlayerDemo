@@ -1190,9 +1190,7 @@ export let dataSearchHelper = {
   
   // 是否开启数据查询
   isOpenSearch: false,
-
-  //属性查询类型
-  searchType:'',
+  
   //框选样式-标绘
   searchStyle: new Style({
     fill: new Fill({
