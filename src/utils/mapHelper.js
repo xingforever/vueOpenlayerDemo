@@ -104,7 +104,7 @@ const baseLayers = {
     visible: false,
     source: new XYZ({
       crossOrigin: 'anonymous',
-      url: mapSrc.tdtImg+'?t='+Date.now.toString()
+      url: mapSrc.tdtImg
     })
   }),
 
