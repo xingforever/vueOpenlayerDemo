@@ -77,7 +77,6 @@ import {
   map
 } from "core-js/fn/array";
 import { getMetadata } from "core-js/fn/reflect";
-import { Math } from "core-js";
 
 //展示所有代码 ctrl+k ctrl +j  ,折叠所有代码  ctrl+k ctrl +0   打开终端 ctrl+j
 const mapSrc = mapconfig.mapSrc
@@ -236,10 +235,12 @@ export let mapHelper = {
     })
     //工具初始化
     toolsHelper.initTools();
-    console.log('初始化了 ')
+    //console.log('初始化了 ')
     //mapHelper.getLayerByName('tdtImg')
-    let source=mapHelper.getLayerByName('tdtImg').getSource()
-    console.log(source.getUrls())
+    // let source=mapHelper.getLayerByName('tdtImg').getSource()
+    // source.refresh()
+    setTimeout( function() { mapHelper.olmap.updateSize();}, 200);
+    //console.log(source.getUrls())
   
   },
   //定义坐标系

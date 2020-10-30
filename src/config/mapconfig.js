@@ -1,11 +1,12 @@
 //天地图密钥
  const  tianditukey="5213f265b5d0df2d26092944a19cb6c2"
-
+ const BaseServerurl = "http://192.168.1.112:8765";
 //天地底图地址
  const baseMapSrc = 
   {           
     tdtImg:   
-    `http://t0.tianditu.gov.cn/img_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=w&TileMatrix={z}&TileRow={y}&TileCol={x}&style=default&format=tiles&tk=`+tianditukey,
+    BaseServerurl+'/TilesImg/{z}/{x}/{y}.png',
+    //`http://t0.tianditu.gov.cn/img_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=w&TileMatrix={z}&TileRow={y}&TileCol={x}&style=default&format=tiles&tk=`+tianditukey,
 
     tdtCia:`http://t0.tianditu.gov.cn/DataServer?T=cia_w&x={x}&y={y}&l={z}&tk=`+tianditukey,
     tdtVec:  `http://t0.tianditu.gov.cn/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=vec&tileMatrixSet=w&TileMatrix={z}&TileRow={y}&TileCol={x}&style=default&format=tiles&tk=`+tianditukey,
@@ -37,7 +38,7 @@ const mapconfig={
     minZoom:10,//最低缩放级别
     mapSrc:baseMapSrc,//底图图层
     scaleLine:false,//比例尺显示
-    projection:'EPSG:4326' ,//坐标系
+    projection:'EPSG:4326' ,//坐标系 'EPSG:4326'
     constrainResolution:true,//
     baseMapNames:baseMapNames,//底图图层名
     mapServiceType:mapServiceType,//地图服务类型

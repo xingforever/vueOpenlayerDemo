@@ -1,19 +1,19 @@
 <template>
 
-<div style="
+  <div style="
     width: 100%;
     height: 100%;
 ">
- <div id="map" ref="rootmap"> 
-     <div id="mouse-position" class="custom-mouse-position">  </div>
-    <div class="custom-zoom" id="zoomControl">  </div>   
-   <div class="custom-scaleLine" id="scaleLineControl"> </div>
- <mapChange />
- <mapLayersearch/>
+    <div id="map" ref="rootmap">
+      <div id="mouse-position" class="custom-mouse-position"> </div>
+      <div class="custom-zoom" id="zoomControl"> </div>
+      <div class="custom-scaleLine" id="scaleLineControl"> </div>
+      <mapChange />
+      <mapLayersearch />
 
-</div>
+    </div>
 
-</div>
+  </div>
 </template>
 
 <script>
@@ -22,20 +22,21 @@
     toolsHelper,
     mapHelper
   } from '../../utils/mapHelper.js'
- import mapTools from '@/views/map/map-tools'
+  import mapTools from '@/views/map/map-tools'
   import mapChange from '@/views/map/map-change'
   import mapControls from '@/views/map/map-controls'
   import olmap from '@/views/map/olmap'
   import mapLayermanager from '@/views/map/map-layermanager'
- import mapLayersearch from '@/views/map/map-layersearch'
- import mapLocationsearch from '@/views/map/map-locationsearch'
- import mapFeatureinfotable from '@/views/map/map-featureinfotable'
+  import mapLayersearch from '@/views/map/map-layersearch'
+  import mapLocationsearch from '@/views/map/map-locationsearch'
+  import mapFeatureinfotable from '@/views/map/map-featureinfotable'
   import test from '@/views/map/test'
   import cesuimmap from '@/views/map/cesuimmap'
+ 
   export default {
     name: 'map-index',
 
-      data() {
+    data() {
       return {
         olmapshow: true,
         cesuimmapshow: false
@@ -45,29 +46,44 @@
       olmap,
       mapControls,
       mapChange,
-      mapTools,     
+      mapTools,
       mapLayersearch,
       mapLocationsearch,
       mapFeatureinfotable,
       cesuimmap
 
-      },    
-    mounted() {
-      //初始化地图
-      mapHelper.initMap()
-      this.map = mapHelper.map
-      //设置默认显示图层
-      mapHelper.changeBaseMapVisible(["tdtImg", "tdtCia"])
-      console.log(this.map)
     },
-    methods:{
+    mounted() {
+      this.getPath()
+       mapHelper.initMap()
+        mapHelper.changeBaseMapVisible(["tdtImg", "tdtCia"])
+          //console.log(mapHelper.olmap)
+     console.log('我被加载了')
+    },
+    methods: {
       //  getShowinfo(olmapshowinfo) {
       //   console.log('收到子组件值')
       //   this.olmapshow = olmapshowinfo
       //   this.cesuimmapshow = !olmapshowinfo
       //   console.log(this.olmapshow)
       // }
-    }
+      getPath() {
+        // console.log(this.$route.path);
+        // if (this.$route.path == '/map') {
+        //   console.log('路由加载了');
+        //   mapHelper.initMap()
+        //   console.log(mapHelper.olmap)
+        //   // this.map = mapHelper.map
+        //   //设置默认显示图层
+        //   mapHelper.changeBaseMapVisible(["tdtImg", "tdtCia"])
+        
+        // }
+      }
+    },
+
+    watch: {
+      '$route': 'getPath'
+    },
   };
 </script>
 
@@ -86,6 +102,7 @@
   .ol-tooltip-static {
     color: red;
   }
+
   .custom-zoom {
     position: absolute !important;
     float: right !important;
