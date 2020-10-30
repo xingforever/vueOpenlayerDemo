@@ -17,7 +17,9 @@
                    
                 </div>
             </div>
-            <el-tree :data="data" show-checkbox node-key="id" :default-expanded-keys="[2, 3]" :props="defaultProps"
+            <el-tree :data="data" show-checkbox node-key="id" 
+            :default-expanded-keys="[2, 3]"  
+             :props="defaultProps"
                 @check='(click, checked)=>{checkNode(click, checked)}' ref='tree'>
             </el-tree>
         </div>
@@ -96,8 +98,12 @@
                 console.log(ischeck)
             },
             hideLayManager(){
+                 this.$refs.tree.setCheckedKeys('1',true);
                 this.isShowLayManager=false
             }
+        },
+        mounted(){
+            this.$refs.tree.setCheckedKeys([1,2,3]);
         }
     }
 </script>

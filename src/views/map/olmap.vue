@@ -2,17 +2,13 @@
 
 
   <div id="map" ref="rootmap"> 
- <div id="mouse-position" class="custom-mouse-position">
-
+     <div id="mouse-position" class="custom-mouse-position">
   </div>
-  <div class="custom-zoom" id="zoomControl">
- 
- </div>
-   
+    <div class="custom-zoom" id="zoomControl"> 
+ </div>   
    <div class="custom-scaleLine" id="scaleLineControl">
  
  </div>
-
 
 
   </div>
@@ -28,14 +24,13 @@
 
   export default {
     name: 'olmap',
-    data() {
+
+      data() {
       return {
-        map: null
-      };
-      components: {
-        MapChange
+       
       }
     },
+      
     mounted() {
       //初始化地图
       mapHelper.initMap()

@@ -89,7 +89,8 @@
   </el-dialog>
     <!-- 图层管理 -->
    <mapLayermanager2 :panelShow.sync="layManagerShow"></mapLayermanager2>
-   <mapFeatureinfotable v-show="isGetData"></mapFeatureinfotable>
+   <!-- <mapFeatureinfotable v-show="isGetData"></mapFeatureinfotable> -->
+
   </div>
 
 </template>
@@ -161,6 +162,8 @@
     },
 
     methods: {
+      
+    
       //开启规划专题图
       onPreview() {
         this.showViewer = true
