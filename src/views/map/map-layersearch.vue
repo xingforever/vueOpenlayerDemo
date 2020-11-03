@@ -155,6 +155,8 @@
         box-shadow: 0 0 20px rgba(0, 0, 0, .3);
         left: 0px;
         display: block;
+        border-right: 1px solid red;
+        box-shadow: 5px 5px 5px #888888;
     }
     .layersearch-head{
         margin-bottom: 10px;
@@ -162,4 +164,47 @@
      .layersearch-hide{
       cursor: pointer;
     }
+    /* 设置树形最外层的背景颜色和字体颜色 */
+.el-tree {
+  color: black;
+  background: transparent;
+  border-right: 1px solid red;
+}
+
+/* 设置三角形图标的颜色 */
+.el-tree-node__expand-icon {
+  color: #fff;
+}
+
+/* 设置节点鼠标悬浮三角图标鼠标悬浮的颜色 */
+.el-tree-node__content:hover .el-tree-node__expand-icon {
+  color: #000;
+}
+/* .el-tree-node__content:hover .el-tree-node__expand-icon.is-leaf {
+  color: transparent;
+} */
+
+/* 树节点鼠标悬浮式改变背景色，字体颜色 */
+.el-tree-node__content:hover {
+  background-color: #3274e6;
+  color: #fff;
+}
+
+/* 改变节点高度 */
+.el-tree-node__content {
+  height: 36px;
+}
+
+/* 节点前边的三角图标并不会被节点样式影响，需要单独修改 当前激活的颜色*/
+.el-tree-node:focus
+  > .el-tree-node__content
+  .el-tree-node__expand-icon {
+  color: #fff;
+}
+
+/* 改变被点击节点背景颜色，字体颜色 */
+.el-tree-node:focus > .el-tree-node__content {
+  background-color: #3274e6;
+  color: #fff;
+}
 </style>

@@ -5,8 +5,8 @@
  const baseMapSrc = 
   {           
     tdtImg:   
-    BaseServerurl+'/TilesImg/{z}/{x}/{y}.png',
-    //`http://t0.tianditu.gov.cn/img_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=w&TileMatrix={z}&TileRow={y}&TileCol={x}&style=default&format=tiles&tk=`+tianditukey,
+    // BaseServerurl+'/TilesImg/{z}/{x}/{y}.png',
+    `http://t0.tianditu.gov.cn/img_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=w&TileMatrix={z}&TileRow={y}&TileCol={x}&style=default&format=tiles&tk=`+tianditukey,
 
     tdtCia:`http://t0.tianditu.gov.cn/DataServer?T=cia_w&x={x}&y={y}&l={z}&tk=`+tianditukey,
     tdtVec:  `http://t0.tianditu.gov.cn/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=vec&tileMatrixSet=w&TileMatrix={z}&TileRow={y}&TileCol={x}&style=default&format=tiles&tk=`+tianditukey,

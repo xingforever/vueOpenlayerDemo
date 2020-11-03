@@ -237,7 +237,7 @@ export let mapHelper = {
     toolsHelper.initTools();
     //console.log('初始化了 ')
     //mapHelper.getLayerByName('tdtImg')
-    // let source=mapHelper.getLayerByName('tdtImg').getSource()
+    //let source=mapHelper.getLayerByName('tdtImg').getSource()
     // source.refresh()
     setTimeout( function() { mapHelper.olmap.updateSize();}, 200);
     //console.log(source.getUrls())
