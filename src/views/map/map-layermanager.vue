@@ -36,7 +36,7 @@
         isActive: false,
         delIsShow: true,
         delImgUrl: require('../../assets/img/layer/del.png'),
-        layerList: []
+        layerList: ['1','2','3']
         //{
         //     mapService_Name: "hlx",
         //     mapServie_Alias: "hlx",

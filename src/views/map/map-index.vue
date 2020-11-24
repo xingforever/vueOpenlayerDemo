@@ -8,11 +8,11 @@
       <div id="mouse-position" class="custom-mouse-position"> </div>
       <div class="custom-zoom" id="zoomControl"> </div>
       <div class="custom-scaleLine" id="scaleLineControl"> </div>
-      <mapChange />
-      <mapLayersearch />
-
+      
     </div>
-
+  <mapChange />
+      <mapLayersearch />
+     <mapTools/>
   </div>
 </template>
 

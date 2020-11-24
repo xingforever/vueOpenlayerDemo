@@ -1,6 +1,6 @@
 //天地图密钥
- const  tianditukey="5213f265b5d0df2d26092944a19cb6c2"
- const BaseServerurl = "http://192.168.1.112:8765";
+ const  tianditukey=""//用自己的密钥
+
 //天地底图地址
  const baseMapSrc = 
   {           

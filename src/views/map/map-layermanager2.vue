@@ -57,7 +57,8 @@
                     };
                 });
                 //排序后数组
-                // console.log(newArr)
+                console.log('排序后');
+                console.log(newArr)
                 //Laymanager sort()
                 layerManager.ChangeLayersIndex(newArr)
             },
